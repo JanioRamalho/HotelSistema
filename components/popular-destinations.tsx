@@ -1,0 +1,109 @@
+'use client'
+
+import Image from 'next/image'
+import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
+import { hotels } from '@/lib/data'
+import { HotelCard } from './hotel-card'
+
+const popularDestinations = [
+  {
+    city: 'Rio de Janeiro',
+    state: 'RJ',
+    image: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600',
+    hotelCount: 45
+  },
+  {
+    city: 'Salvador',
+    state: 'BA',
+    image: 'https://images.unsplash.com/photo-1548963670-aaaa8f73a5e3?w=600',
+    hotelCount: 32
+  },
+  {
+    city: 'Gramado',
+    state: 'RS',
+    image: 'https://images.unsplash.com/photo-1597659840241-37e2b9c2f55f?w=600',
+    hotelCount: 28
+  },
+  {
+    city: 'Fortaleza',
+    state: 'CE',
+    image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600',
+    hotelCount: 38
+  },
+]
+
+export function PopularDestinations() {
+  return (
+    <section id="destinos" className="bg-muted py-16">
+      <div className="container mx-auto px-4">
+        <div className="mb-10 text-center">
+          <h2 className="mb-3 font-serif text-3xl font-bold text-foreground sm:text-4xl">
+            Destinos Populares
+          </h2>
+          <p className="mx-auto max-w-2xl text-muted-foreground text-pretty">
+            Explore os destinos mais procurados do Brasil e encontre a hospedagem perfeita
+          </p>
+        </div>
+
+        {/* Destinations Grid */}
+        <div className="mb-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {popularDestinations.map((destination) => (
+            <Link
+              key={`${destination.city}-${destination.state}`}
+              href={`/busca?destino=${encodeURIComponent(destination.city)}`}
+              className="group relative aspect-[4/5] overflow-hidden rounded-xl"
+            >
+              <Image
+                src={destination.image}
+                alt={destination.city}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 p-5">
+                <h3 className="text-xl font-bold text-white">{destination.city}</h3>
+                <p className="text-sm text-white/80">{destination.hotelCount} hotéis</p>
+              </div>
+              <div className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                <ArrowRight className="h-5 w-5" />
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Featured Hotels */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-foreground">Hotéis em Destaque</h3>
+            <p className="text-muted-foreground">Selecionados especialmente para você</p>
+          </div>
+          <Link 
+            href="/busca" 
+            className="hidden items-center gap-2 text-sm font-medium text-primary hover:underline sm:flex"
+          >
+            Ver todos
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {hotels.slice(0, 4).map((hotel) => (
+            <HotelCard key={hotel.id} hotel={hotel} />
+          ))}
+        </div>
+
+        <div className="mt-6 text-center sm:hidden">
+          <Link 
+            href="/busca" 
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+          >
+            Ver todos os hotéis
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
