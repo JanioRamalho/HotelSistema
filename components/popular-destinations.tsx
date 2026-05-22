@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { hotels } from '@/lib/data'
+import { hotels } from '@/features/hotels/hotel-data'
 import { HotelCard } from './hotel-card'
 
 const popularDestinations = [
@@ -11,29 +11,28 @@ const popularDestinations = [
     city: 'Rio de Janeiro',
     state: 'RJ',
     image: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600',
-    hotelCount: 45
   },
   {
     city: 'Salvador',
     state: 'BA',
-    image: 'https://images.unsplash.com/photo-1548963670-aaaa8f73a5e3?w=600',
-    hotelCount: 32
+    image: 'https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?w=600',
   },
   {
     city: 'Gramado',
     state: 'RS',
-    image: 'https://images.unsplash.com/photo-1597659840241-37e2b9c2f55f?w=600',
-    hotelCount: 28
+    image: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=600',
   },
   {
     city: 'Fortaleza',
     state: 'CE',
-    image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600',
-    hotelCount: 38
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600',
   },
 ]
 
 export function PopularDestinations() {
+  const getDestinationHotelCount = (city: string, state: string) =>
+    hotels.filter((hotel) => hotel.city === city && hotel.state === state).length
+
   return (
     <section id="destinos" className="bg-muted py-16">
       <div className="container mx-auto px-4">
@@ -46,7 +45,6 @@ export function PopularDestinations() {
           </p>
         </div>
 
-        {/* Destinations Grid */}
         <div className="mb-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {popularDestinations.map((destination) => (
             <Link
@@ -64,7 +62,9 @@ export function PopularDestinations() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 p-5">
                 <h3 className="text-xl font-bold text-white">{destination.city}</h3>
-                <p className="text-sm text-white/80">{destination.hotelCount} hotéis</p>
+                <p className="text-sm text-white/80">
+                  {getDestinationHotelCount(destination.city, destination.state)} hotéis
+                </p>
               </div>
               <div className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
                 <ArrowRight className="h-5 w-5" />
@@ -73,14 +73,13 @@ export function PopularDestinations() {
           ))}
         </div>
 
-        {/* Featured Hotels */}
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h3 className="text-2xl font-bold text-foreground">Hotéis em Destaque</h3>
             <p className="text-muted-foreground">Selecionados especialmente para você</p>
           </div>
-          <Link 
-            href="/busca" 
+          <Link
+            href="/busca"
             className="hidden items-center gap-2 text-sm font-medium text-primary hover:underline sm:flex"
           >
             Ver todos
@@ -95,8 +94,8 @@ export function PopularDestinations() {
         </div>
 
         <div className="mt-6 text-center sm:hidden">
-          <Link 
-            href="/busca" 
+          <Link
+            href="/busca"
             className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
           >
             Ver todos os hotéis

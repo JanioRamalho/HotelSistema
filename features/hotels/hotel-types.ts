@@ -1,6 +1,6 @@
 // Tipos para a plataforma de reservas de hotéis
 
-export type Amenity = 
+export type Amenity =
   | 'wifi'
   | 'pool'
   | 'gym'
@@ -21,24 +21,24 @@ export type Amenity =
   | 'business-center'
 
 export const amenityLabels: Record<Amenity, string> = {
-  'wifi': 'Wi-Fi Grátis',
-  'pool': 'Piscina',
-  'gym': 'Academia',
-  'spa': 'Spa',
-  'sauna': 'Sauna',
-  'massage': 'Massagem',
+  wifi: 'Wi-Fi Grátis',
+  pool: 'Piscina',
+  gym: 'Academia',
+  spa: 'Spa',
+  sauna: 'Sauna',
+  massage: 'Massagem',
   'pet-friendly': 'Pet Friendly',
-  'restaurant': 'Restaurante',
-  'bar': 'Bar',
+  restaurant: 'Restaurante',
+  bar: 'Bar',
   'room-service': 'Serviço de Quarto',
-  'parking': 'Estacionamento',
+  parking: 'Estacionamento',
   'air-conditioning': 'Ar Condicionado',
-  'breakfast': 'Café da Manhã',
+  breakfast: 'Café da Manhã',
   'beach-access': 'Acesso à Praia',
   'kids-club': 'Kids Club',
-  'concierge': 'Concierge',
-  'laundry': 'Lavanderia',
-  'business-center': 'Centro de Negócios'
+  concierge: 'Concierge',
+  laundry: 'Lavanderia',
+  'business-center': 'Centro de Negócios',
 }
 
 export interface HotelImage {
@@ -54,7 +54,7 @@ export interface Room {
   category: 'economic' | 'standard' | 'luxury'
   price: number
   capacity: number
-  size: number // em m²
+  size: number
   amenities: Amenity[]
   images: string[]
   available: boolean
@@ -134,7 +134,6 @@ export interface BookingRequest {
   specialRequests?: string
 }
 
-// Estados brasileiros para os filtros
 export const brazilianStates = [
   { value: 'AC', label: 'Acre' },
   { value: 'AL', label: 'Alagoas' },
@@ -165,7 +164,6 @@ export const brazilianStates = [
   { value: 'TO', label: 'Tocantins' },
 ]
 
-// Cidades populares para sugestões
 export const popularCities = [
   { city: 'Rio de Janeiro', state: 'RJ' },
   { city: 'São Paulo', state: 'SP' },

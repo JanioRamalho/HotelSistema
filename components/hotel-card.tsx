@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star, MapPin, Heart, Wifi, Dumbbell, Waves, PawPrint, Coffee, Car } from 'lucide-react'
-import { Hotel, Amenity } from '@/lib/types'
+import { Hotel, Amenity } from '@/features/hotels/hotel-types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 

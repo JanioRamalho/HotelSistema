@@ -1,20 +1,20 @@
-'use client'
+﻿'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { Suspense, useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { SearchFilters } from '@/components/search-filters'
 import { HotelCard } from '@/components/hotel-card'
-import { searchHotels, hotels as allHotels } from '@/lib/data'
-import { Amenity } from '@/lib/types'
-import { Search, SlidersHorizontal, ArrowUpDown } from 'lucide-react'
+import { searchHotels } from '@/features/hotels/hotel-service'
+import { Amenity } from '@/features/hotels/hotel-types'
+import { Search, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 type SortOption = 'price-asc' | 'price-desc' | 'rating' | 'stars'
 
-export default function BuscaPage() {
+function BuscaContent() {
   const searchParams = useSearchParams()
   
   const [filters, setFilters] = useState({
@@ -196,5 +196,13 @@ export default function BuscaPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function BuscaPage() {
+  return (
+    <Suspense>
+      <BuscaContent />
+    </Suspense>
   )
 }

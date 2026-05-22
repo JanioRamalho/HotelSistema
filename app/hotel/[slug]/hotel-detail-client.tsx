@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Image from 'next/image'
@@ -32,7 +32,7 @@ import {
   ConciergeBell,
   Shirt
 } from 'lucide-react'
-import { Hotel, Amenity, amenityLabels, Room } from '@/lib/types'
+import { Hotel, Amenity, amenityLabels, Room } from '@/features/hotels/hotel-types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
-import { getHotelBySlug, hotels } from '@/lib/data'
+import { hotels } from '@/features/hotels/hotel-data'
+import { getHotelBySlug } from '@/features/hotels/hotel-service'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { HotelDetailClient } from './hotel-detail-client'

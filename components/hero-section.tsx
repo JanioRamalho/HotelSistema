@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Search, MapPin, Calendar, Users, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { popularCities } from '@/lib/types'
+import { popularCities } from '@/features/hotels/hotel-types'
 
 export function HeroSection() {
   const router = useRouter()
@@ -15,11 +15,13 @@ export function HeroSection() {
   const [guests, setGuests] = useState('2')
   const [showSuggestions, setShowSuggestions] = useState(false)
 
-  const filteredCities = popularCities.filter(
-    city => 
-      city.city.toLowerCase().includes(destination.toLowerCase()) ||
-      city.state.toLowerCase().includes(destination.toLowerCase())
-  ).slice(0, 5)
+  const filteredCities = popularCities
+    .filter(
+      (city) =>
+        city.city.toLowerCase().includes(destination.toLowerCase()) ||
+        city.state.toLowerCase().includes(destination.toLowerCase())
+    )
+    .slice(0, 5)
 
   const handleSearch = () => {
     const params = new URLSearchParams()
@@ -27,7 +29,7 @@ export function HeroSection() {
     if (checkIn) params.set('checkin', checkIn)
     if (checkOut) params.set('checkout', checkOut)
     if (guests) params.set('hospedes', guests)
-    
+
     router.push(`/busca?${params.toString()}`)
   }
 
@@ -38,8 +40,7 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-[600px] w-full overflow-hidden">
-      {/* Background Image */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: 'url(https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1920&q=80)',
@@ -48,7 +49,6 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
       </div>
 
-      {/* Content */}
       <div className="relative z-10 flex min-h-[600px] flex-col items-center justify-center px-4 py-20">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="mb-4 font-serif text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl text-balance">
@@ -59,10 +59,8 @@ export function HeroSection() {
           </p>
         </div>
 
-        {/* Search Box */}
         <div className="w-full max-w-5xl rounded-2xl bg-card p-4 shadow-2xl sm:p-6">
           <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-5">
-            {/* Destination */}
             <div className="relative md:col-span-2">
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 Destino
@@ -101,7 +99,6 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Check-in */}
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 Check-in
@@ -118,7 +115,6 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Check-out */}
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 Check-out
@@ -135,7 +131,6 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Guests & Search */}
             <div className="flex gap-2 md:col-span-4 lg:col-span-1">
               <div className="flex-1 lg:flex-none">
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
@@ -158,11 +153,7 @@ export function HeroSection() {
                 </div>
               </div>
               <div className="flex items-end">
-                <Button 
-                  onClick={handleSearch} 
-                  size="lg" 
-                  className="h-12 gap-2 px-6"
-                >
+                <Button onClick={handleSearch} size="lg" className="h-12 gap-2 px-6">
                   <Search className="h-4 w-4" />
                   <span className="hidden sm:inline">Buscar</span>
                 </Button>
@@ -171,7 +162,6 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Quick Stats */}
         <div className="mt-8 flex flex-wrap justify-center gap-8 text-center text-white/90">
           <div>
             <p className="text-2xl font-bold">500+</p>

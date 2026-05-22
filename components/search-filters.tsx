@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  Filter, 
+import {
+  Filter,
   X,
   ChevronDown,
   Star,
@@ -17,13 +17,13 @@ import {
   Coffee,
   Umbrella,
   Baby,
-  Briefcase
+  Briefcase,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { Amenity, amenityLabels, brazilianStates } from '@/lib/types'
+import { Amenity, brazilianStates } from '@/features/hotels/hotel-types'
 
 interface SearchFiltersProps {
   filters: {
@@ -61,39 +61,36 @@ export function SearchFilters({ filters, onFiltersChange, onClearFilters }: Sear
   const [expandedSections, setExpandedSections] = useState<string[]>(['price', 'amenities', 'rating'])
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev =>
-      prev.includes(section)
-        ? prev.filter(s => s !== section)
-        : [...prev, section]
+    setExpandedSections((prev) =>
+      prev.includes(section) ? prev.filter((item) => item !== section) : [...prev, section]
     )
   }
 
   const handleAmenityToggle = (amenity: Amenity) => {
     const newAmenities = filters.amenities.includes(amenity)
-      ? filters.amenities.filter(a => a !== amenity)
+      ? filters.amenities.filter((item) => item !== amenity)
       : [...filters.amenities, amenity]
     onFiltersChange({ ...filters, amenities: newAmenities })
   }
 
   const handleStarsToggle = (star: number) => {
     const newStars = filters.stars.includes(star)
-      ? filters.stars.filter(s => s !== star)
+      ? filters.stars.filter((item) => item !== star)
       : [...filters.stars, star]
     onFiltersChange({ ...filters, stars: newStars })
   }
 
-  const hasActiveFilters = 
-    filters.city || 
-    filters.state || 
-    filters.priceMin || 
-    filters.priceMax || 
-    filters.amenities.length > 0 || 
-    filters.minRating || 
+  const hasActiveFilters =
+    filters.city ||
+    filters.state ||
+    filters.priceMin ||
+    filters.priceMax ||
+    filters.amenities.length > 0 ||
+    filters.minRating ||
     filters.stars.length > 0
 
   return (
     <div className="rounded-xl border border-border bg-card">
-      {/* Mobile Filter Toggle */}
       <button
         className="flex w-full items-center justify-between p-4 lg:hidden"
         onClick={() => setIsOpen(!isOpen)}
@@ -110,41 +107,39 @@ export function SearchFilters({ filters, onFiltersChange, onClearFilters }: Sear
         <ChevronDown className={`h-5 w-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
-      {/* Filters Content */}
       <div className={`${isOpen ? 'block' : 'hidden'} lg:block`}>
         <div className="p-4">
-          {/* Header with Clear Button */}
           <div className="mb-4 hidden items-center justify-between lg:flex">
             <h3 className="flex items-center gap-2 font-semibold">
               <Filter className="h-5 w-5" />
               Filtros
             </h3>
             {hasActiveFilters && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={onClearFilters}
-                className="h-8 text-xs"
-              >
+              <Button variant="ghost" size="sm" onClick={onClearFilters} className="h-8 text-xs">
                 <X className="mr-1 h-3 w-3" />
                 Limpar
               </Button>
             )}
           </div>
 
-          {/* Location Filter */}
           <div className="mb-4 border-b border-border pb-4">
             <button
               className="flex w-full items-center justify-between py-2"
               onClick={() => toggleSection('location')}
             >
               <span className="text-sm font-medium">Localização</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.includes('location') ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  expandedSections.includes('location') ? 'rotate-180' : ''
+                }`}
+              />
             </button>
             {expandedSections.includes('location') && (
               <div className="mt-3 space-y-3">
                 <div>
-                  <Label htmlFor="city" className="text-xs text-muted-foreground">Cidade</Label>
+                  <Label htmlFor="city" className="text-xs text-muted-foreground">
+                    Cidade
+                  </Label>
                   <Input
                     id="city"
                     type="text"
@@ -155,7 +150,9 @@ export function SearchFilters({ filters, onFiltersChange, onClearFilters }: Sear
                   />
                 </div>
                 <div>
-                  <Label htmlFor="state" className="text-xs text-muted-foreground">Estado</Label>
+                  <Label htmlFor="state" className="text-xs text-muted-foreground">
+                    Estado
+                  </Label>
                   <select
                     id="state"
                     value={filters.state}
@@ -174,19 +171,24 @@ export function SearchFilters({ filters, onFiltersChange, onClearFilters }: Sear
             )}
           </div>
 
-          {/* Price Filter */}
           <div className="mb-4 border-b border-border pb-4">
             <button
               className="flex w-full items-center justify-between py-2"
               onClick={() => toggleSection('price')}
             >
               <span className="text-sm font-medium">Faixa de Preço</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.includes('price') ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  expandedSections.includes('price') ? 'rotate-180' : ''
+                }`}
+              />
             </button>
             {expandedSections.includes('price') && (
               <div className="mt-3 flex gap-2">
                 <div className="flex-1">
-                  <Label htmlFor="priceMin" className="text-xs text-muted-foreground">Mínimo</Label>
+                  <Label htmlFor="priceMin" className="text-xs text-muted-foreground">
+                    Mínimo
+                  </Label>
                   <Input
                     id="priceMin"
                     type="number"
@@ -197,7 +199,9 @@ export function SearchFilters({ filters, onFiltersChange, onClearFilters }: Sear
                   />
                 </div>
                 <div className="flex-1">
-                  <Label htmlFor="priceMax" className="text-xs text-muted-foreground">Máximo</Label>
+                  <Label htmlFor="priceMax" className="text-xs text-muted-foreground">
+                    Máximo
+                  </Label>
                   <Input
                     id="priceMax"
                     type="number"
@@ -211,22 +215,22 @@ export function SearchFilters({ filters, onFiltersChange, onClearFilters }: Sear
             )}
           </div>
 
-          {/* Stars Filter */}
           <div className="mb-4 border-b border-border pb-4">
             <button
               className="flex w-full items-center justify-between py-2"
               onClick={() => toggleSection('stars')}
             >
               <span className="text-sm font-medium">Classificação</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.includes('stars') ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  expandedSections.includes('stars') ? 'rotate-180' : ''
+                }`}
+              />
             </button>
             {expandedSections.includes('stars') && (
               <div className="mt-3 space-y-2">
                 {[5, 4, 3, 2, 1].map((star) => (
-                  <label 
-                    key={star}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg p-2 hover:bg-muted"
-                  >
+                  <label key={star} className="flex cursor-pointer items-center gap-2 rounded-lg p-2 hover:bg-muted">
                     <Checkbox
                       checked={filters.stars.includes(star)}
                       onCheckedChange={() => handleStarsToggle(star)}
@@ -245,22 +249,22 @@ export function SearchFilters({ filters, onFiltersChange, onClearFilters }: Sear
             )}
           </div>
 
-          {/* Rating Filter */}
           <div className="mb-4 border-b border-border pb-4">
             <button
               className="flex w-full items-center justify-between py-2"
               onClick={() => toggleSection('rating')}
             >
               <span className="text-sm font-medium">Avaliação Mínima</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.includes('rating') ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  expandedSections.includes('rating') ? 'rotate-180' : ''
+                }`}
+              />
             </button>
             {expandedSections.includes('rating') && (
               <div className="mt-3 space-y-2">
                 {[4.5, 4.0, 3.5, 3.0].map((rating) => (
-                  <label 
-                    key={rating}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg p-2 hover:bg-muted"
-                  >
+                  <label key={rating} className="flex cursor-pointer items-center gap-2 rounded-lg p-2 hover:bg-muted">
                     <input
                       type="radio"
                       name="minRating"
@@ -280,19 +284,22 @@ export function SearchFilters({ filters, onFiltersChange, onClearFilters }: Sear
             )}
           </div>
 
-          {/* Amenities Filter */}
           <div className="pb-4">
             <button
               className="flex w-full items-center justify-between py-2"
               onClick={() => toggleSection('amenities')}
             >
               <span className="text-sm font-medium">Comodidades</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${expandedSections.includes('amenities') ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  expandedSections.includes('amenities') ? 'rotate-180' : ''
+                }`}
+              />
             </button>
             {expandedSections.includes('amenities') && (
               <div className="mt-3 space-y-2">
                 {amenityOptions.map((amenity) => (
-                  <label 
+                  <label
                     key={amenity.value}
                     className="flex cursor-pointer items-center gap-2 rounded-lg p-2 hover:bg-muted"
                   >
@@ -308,20 +315,12 @@ export function SearchFilters({ filters, onFiltersChange, onClearFilters }: Sear
             )}
           </div>
 
-          {/* Mobile Clear & Apply */}
           {hasActiveFilters && (
             <div className="mt-4 flex gap-2 lg:hidden">
-              <Button 
-                variant="outline" 
-                className="flex-1"
-                onClick={onClearFilters}
-              >
+              <Button variant="outline" className="flex-1" onClick={onClearFilters}>
                 Limpar Filtros
               </Button>
-              <Button 
-                className="flex-1"
-                onClick={() => setIsOpen(false)}
-              >
+              <Button className="flex-1" onClick={() => setIsOpen(false)}>
                 Aplicar
               </Button>
             </div>

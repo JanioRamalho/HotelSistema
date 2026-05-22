@@ -1,6 +1,6 @@
-import { Hotel } from './types'
+import { Hotel } from './hotel-types'
 
-export const hotels: Hotel[] = [
+const baseHotels: Hotel[] = [
   {
     id: '1',
     name: 'Grand Hotel Copacabana',
@@ -924,8 +924,174 @@ export const hotels: Hotel[] = [
       email: 'reservas@costaverdeparaty.com.br',
       website: 'www.costaverdeparaty.com.br'
     }
+  },
+  {
+    id: '22',
+    name: 'Farol da Barra Suítes',
+    slug: 'farol-da-barra-suites',
+    description: 'Suítes modernas próximas ao Farol da Barra, com boa estrutura para casais, famílias pequenas e viajantes que querem ficar perto da praia.',
+    shortDescription: 'Suítes perto do Farol da Barra',
+    address: 'Av. Oceânica, 1200',
+    city: 'Salvador',
+    state: 'BA',
+    country: 'Brasil',
+    zipCode: '40140-130',
+    latitude: -13.0101,
+    longitude: -38.5326,
+    stars: 4,
+    rating: 4.6,
+    reviewCount: 442,
+    priceFrom: 520,
+    images: [
+      { url: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800', alt: 'Fachada com varanda', category: 'exterior' },
+      { url: 'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=800', alt: 'Suíte clara', category: 'room' },
+      { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', alt: 'Praia próxima', category: 'common' },
+    ],
+    amenities: ['wifi', 'pool', 'bar', 'air-conditioning', 'breakfast', 'beach-access'],
+    rooms: [
+      { id: '22-1', name: 'Suíte Barra', description: 'Suíte com varanda e cama queen', category: 'standard', price: 520, capacity: 2, size: 27, amenities: ['wifi', 'air-conditioning', 'breakfast'], images: ['https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=800'], available: true },
+      { id: '22-2', name: 'Família Oceânica', description: 'Quarto para família com vista lateral do mar', category: 'standard', price: 690, capacity: 4, size: 36, amenities: ['wifi', 'air-conditioning', 'breakfast'], images: ['https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?w=800'], available: true },
+    ],
+    reviews: [{ id: 'r24', userId: 'u24', userName: 'Camila Reis', rating: 5, comment: 'Perto da praia e ótimo para caminhar no fim da tarde.', date: '2024-03-15', stayDate: '2024-03-09' }],
+    policies: { checkIn: '14:00', checkOut: '12:00', cancellation: 'Cancelamento gratuito até 48h antes do check-in', pets: 'Não aceitamos pets', children: 'Crianças até 10 anos não pagam' },
+    contact: { phone: '(71) 3377-4040', email: 'reservas@faroldabarrasuites.com.br' }
+  },
+  {
+    id: '23',
+    name: 'Lago Negro Lodge',
+    slug: 'lago-negro-lodge',
+    description: 'Hospedagem elegante perto do Lago Negro, com jardins, lareira e quartos confortáveis para uma estadia tranquila na serra.',
+    shortDescription: 'Lodge charmoso perto do Lago Negro',
+    address: 'Rua Bruno E. Riegel, 700',
+    city: 'Gramado',
+    state: 'RS',
+    country: 'Brasil',
+    zipCode: '95670-000',
+    latitude: -29.3885,
+    longitude: -50.8681,
+    stars: 4,
+    rating: 4.7,
+    reviewCount: 518,
+    priceFrom: 560,
+    images: [
+      { url: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800', alt: 'Lodge na serra', category: 'exterior' },
+      { url: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800', alt: 'Quarto acolhedor', category: 'room' },
+      { url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800', alt: 'Café colonial', category: 'restaurant' },
+    ],
+    amenities: ['wifi', 'spa', 'restaurant', 'bar', 'parking', 'breakfast'],
+    rooms: [
+      { id: '23-1', name: 'Lodge Jardim', description: 'Quarto com vista para o jardim', category: 'standard', price: 560, capacity: 2, size: 27, amenities: ['wifi', 'breakfast'], images: ['https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800'], available: true },
+      { id: '23-2', name: 'Suíte Lago', description: 'Suíte ampla com banheira e lareira', category: 'luxury', price: 1040, capacity: 2, size: 44, amenities: ['wifi', 'breakfast', 'spa', 'room-service'], images: ['https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?w=800'], available: true },
+    ],
+    reviews: [{ id: 'r25', userId: 'u25', userName: 'Rafael Nogueira', rating: 5, comment: 'Ambiente elegante e muito silencioso.', date: '2024-03-17', stayDate: '2024-03-11' }],
+    policies: { checkIn: '15:00', checkOut: '11:00', cancellation: 'Cancelamento gratuito até 72h antes do check-in', pets: 'Não aceitamos pets', children: 'Crianças até 8 anos não pagam' },
+    contact: { phone: '(54) 3286-4141', email: 'reservas@lagonegrolodge.com.br' }
+  },
+  {
+    id: '24',
+    name: 'Praia do Futuro Resort',
+    slug: 'praia-do-futuro-resort',
+    description: 'Resort com área de lazer completa perto da Praia do Futuro, ideal para famílias que buscam piscina, restaurante e acesso fácil à orla.',
+    shortDescription: 'Resort familiar perto da Praia do Futuro',
+    address: 'Av. Dioguinho, 4200',
+    city: 'Fortaleza',
+    state: 'CE',
+    country: 'Brasil',
+    zipCode: '60182-001',
+    latitude: -3.7482,
+    longitude: -38.4498,
+    stars: 4,
+    rating: 4.5,
+    reviewCount: 611,
+    priceFrom: 620,
+    images: [
+      { url: 'https://images.unsplash.com/photo-1615880484746-a134be9a6ecf?w=800', alt: 'Resort próximo à praia', category: 'exterior' },
+      { url: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800', alt: 'Quarto família', category: 'room' },
+      { url: 'https://images.unsplash.com/photo-1610641818989-c2051b5e2cfd?w=800', alt: 'Piscina do resort', category: 'pool' },
+    ],
+    amenities: ['wifi', 'pool', 'restaurant', 'bar', 'room-service', 'parking', 'air-conditioning', 'breakfast', 'beach-access', 'kids-club'],
+    rooms: [
+      { id: '24-1', name: 'Família Praia', description: 'Quarto amplo para famílias', category: 'standard', price: 620, capacity: 4, size: 38, amenities: ['wifi', 'air-conditioning', 'breakfast'], images: ['https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800'], available: true },
+      { id: '24-2', name: 'Suíte Futuro', description: 'Suíte com varanda e vista lateral do mar', category: 'luxury', price: 980, capacity: 3, size: 46, amenities: ['wifi', 'air-conditioning', 'breakfast', 'room-service'], images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800'], available: true },
+    ],
+    reviews: [{ id: 'r26', userId: 'u26', userName: 'Priscila Rocha', rating: 5, comment: 'Ótima estrutura para criança e muito perto da praia.', date: '2024-03-20', stayDate: '2024-03-15' }],
+    policies: { checkIn: '14:00', checkOut: '12:00', cancellation: 'Cancelamento gratuito até 48h antes do check-in', pets: 'Não aceitamos pets', children: 'Crianças até 10 anos não pagam' },
+    contact: { phone: '(85) 3265-5050', email: 'reservas@praiadofuturoresort.com.br' }
   }
 ]
+
+const createDestinationHotel = ({
+  id,
+  name,
+  slug,
+  city,
+  state,
+  address,
+  shortDescription,
+  description,
+  priceFrom,
+  rating,
+  image,
+}: {
+  id: string
+  name: string
+  slug: string
+  city: string
+  state: string
+  address: string
+  shortDescription: string
+  description: string
+  priceFrom: number
+  rating: number
+  image: string
+}): Hotel => ({
+  id,
+  name,
+  slug,
+  description,
+  shortDescription,
+  address,
+  city,
+  state,
+  country: 'Brasil',
+  zipCode: '00000-000',
+  latitude: 0,
+  longitude: 0,
+  stars: rating >= 4.7 ? 4 : 3,
+  rating,
+  reviewCount: 320 + Number(id),
+  priceFrom,
+  images: [
+    { url: image, alt: name, category: 'exterior' },
+    { url: 'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=800', alt: 'Quarto confortável', category: 'room' },
+    { url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800', alt: 'Restaurante do hotel', category: 'restaurant' },
+  ],
+  amenities: ['wifi', 'restaurant', 'bar', 'air-conditioning', 'breakfast'],
+  rooms: [
+    { id: id + '-1', name: 'Quarto Standard', description: 'Quarto confortável para casal', category: 'standard', price: priceFrom, capacity: 2, size: 26, amenities: ['wifi', 'air-conditioning', 'breakfast'], images: ['https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=800'], available: true },
+    { id: id + '-2', name: 'Suíte Família', description: 'Suíte ampla para até quatro hóspedes', category: 'luxury', price: priceFrom + 260, capacity: 4, size: 38, amenities: ['wifi', 'air-conditioning', 'breakfast', 'room-service'], images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800'], available: true },
+  ],
+  reviews: [{ id: 'r' + id, userId: 'u' + id, userName: 'Hóspede verificado', rating: Math.round(rating), comment: 'Boa localização, atendimento cuidadoso e quartos bem mantidos.', date: '2024-03-20', stayDate: '2024-03-14' }],
+  policies: { checkIn: '14:00', checkOut: '12:00', cancellation: 'Cancelamento gratuito até 48h antes do check-in', pets: 'Não aceitamos pets', children: 'Crianças de todas as idades são bem-vindas' },
+  contact: { phone: '(00) 3000-0000', email: 'reservas@stayhub.com.br' },
+})
+
+const popularDestinationHotels: Hotel[] = [
+  createDestinationHotel({ id: '13', name: 'Marina Palace Ipanema', slug: 'marina-palace-ipanema', city: 'Rio de Janeiro', state: 'RJ', address: 'Rua Prudente de Morais, 729', shortDescription: 'Boutique perto da praia de Ipanema', description: 'Hotel boutique em Ipanema com rooftop, quartos elegantes e acesso rápido à praia.', priceFrom: 740, rating: 4.7, image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800' }),
+  createDestinationHotel({ id: '14', name: 'Santa Teresa Garden Hotel', slug: 'santa-teresa-garden-hotel', city: 'Rio de Janeiro', state: 'RJ', address: 'Rua Almirante Alexandrino, 980', shortDescription: 'Charme e arte em Santa Teresa', description: 'Refúgio charmoso cercado por jardins e ateliês no bairro de Santa Teresa.', priceFrom: 520, rating: 4.6, image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800' }),
+  createDestinationHotel({ id: '15', name: 'Barra Ocean Convention', slug: 'barra-ocean-convention', city: 'Rio de Janeiro', state: 'RJ', address: 'Av. Lúcio Costa, 5400', shortDescription: 'Estrutura completa na Barra', description: 'Hotel completo para eventos, famílias e viagens perto da praia da Barra.', priceFrom: 610, rating: 4.5, image: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800' }),
+  createDestinationHotel({ id: '16', name: 'Pelourinho Boutique Hotel', slug: 'pelourinho-boutique-hotel', city: 'Salvador', state: 'BA', address: 'Rua Gregório de Matos, 88', shortDescription: 'Boutique histórico no Pelourinho', description: 'Hotel em casarão restaurado no centro histórico de Salvador, com decoração regional.', priceFrom: 460, rating: 4.7, image: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800' }),
+  createDestinationHotel({ id: '17', name: 'Rio Vermelho Praia Hotel', slug: 'rio-vermelho-praia-hotel', city: 'Salvador', state: 'BA', address: 'Rua Fonte do Boi, 210', shortDescription: 'Conforto perto da orla', description: 'Hospedagem descontraída no Rio Vermelho, perto da vida noturna e da orla.', priceFrom: 330, rating: 4.4, image: 'https://images.unsplash.com/photo-1455587734955-081b22074882?w=800' }),
+  createDestinationHotel({ id: '18', name: 'Ondina Mar Hotel', slug: 'ondina-mar-hotel', city: 'Salvador', state: 'BA', address: 'Av. Oceânica, 2400', shortDescription: 'Vista para o mar em Ondina', description: 'Hotel em Ondina com quartos práticos, café da manhã e acesso fácil à Barra.', priceFrom: 490, rating: 4.5, image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800' }),
+  createDestinationHotel({ id: '19', name: 'Gramado Vale Hotel', slug: 'gramado-vale-hotel', city: 'Gramado', state: 'RS', address: 'Av. Borges de Medeiros, 2100', shortDescription: 'Vista para o vale em Gramado', description: 'Hotel acolhedor com lareira, café colonial e clima serrano.', priceFrom: 590, rating: 4.8, image: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=800' }),
+  createDestinationHotel({ id: '20', name: 'Centro Gramado Suítes', slug: 'centro-gramado-suites', city: 'Gramado', state: 'RS', address: 'Rua Coberta, 55', shortDescription: 'Suítes perto da Rua Coberta', description: 'Suítes práticas no centro, perto de restaurantes e atrações da cidade.', priceFrom: 410, rating: 4.5, image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800' }),
+  createDestinationHotel({ id: '21', name: 'Bavária Serra Hotel', slug: 'bavaria-serra-hotel', city: 'Gramado', state: 'RS', address: 'Rua da Bavária, 320', shortDescription: 'Hospedagem serrana com jardim', description: 'Hotel tranquilo com jardins, quartos aconchegantes e café colonial.', priceFrom: 540, rating: 4.6, image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800' }),
+  createDestinationHotel({ id: '25', name: 'Meireles Beach Hotel', slug: 'meireles-beach-hotel', city: 'Fortaleza', state: 'CE', address: 'Av. Beira Mar, 2450', shortDescription: 'Conforto perto da Beira Mar', description: 'Hotel moderno em Meireles, perto da feirinha e de restaurantes tradicionais.', priceFrom: 540, rating: 4.6, image: 'https://images.unsplash.com/photo-1615880484746-a134be9a6ecf?w=800' }),
+  createDestinationHotel({ id: '26', name: 'Iracema Design Hotel', slug: 'iracema-design-hotel', city: 'Fortaleza', state: 'CE', address: 'Rua dos Tabajaras, 315', shortDescription: 'Design urbano na Praia de Iracema', description: 'Hotel com proposta urbana para quem quer aproveitar a Praia de Iracema.', priceFrom: 360, rating: 4.3, image: 'https://images.unsplash.com/photo-1455587734955-081b22074882?w=800' }),
+  createDestinationHotel({ id: '27', name: 'Aldeota Comfort Hotel', slug: 'aldeota-comfort-hotel', city: 'Fortaleza', state: 'CE', address: 'Av. Santos Dumont, 1800', shortDescription: 'Praticidade na Aldeota', description: 'Hotel confortável para negócios e lazer, com acesso rápido à Beira Mar.', priceFrom: 430, rating: 4.4, image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800' }),
+]
+
+export const hotels: Hotel[] = [...baseHotels, ...popularDestinationHotels]
 
 // Função para buscar hotéis com filtros
 export function searchHotels(filters: {
