@@ -1,9 +1,8 @@
-import { notFound } from 'next/navigation'
 import { hotels } from '@/features/hotels/hotel-data'
 import { getHotelBySlug } from '@/features/hotels/hotel-service'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { HotelDetailClient } from './hotel-detail-client'
+import { HotelDetailLoader } from './hotel-detail-loader'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -31,16 +30,11 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function HotelPage({ params }: Props) {
   const { slug } = await params
-  const hotel = getHotelBySlug(slug)
-
-  if (!hotel) {
-    notFound()
-  }
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <HotelDetailClient hotel={hotel} />
+      <HotelDetailLoader slug={slug} />
       <Footer />
     </div>
   )

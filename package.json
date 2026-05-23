@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:gateway": "npm --prefix services/api-gateway run dev",
+    "dev:hotel-service": "npm --prefix services/hotel-service run dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint ."

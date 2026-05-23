@@ -6,8 +6,8 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { SearchFilters } from '@/components/search-filters'
 import { HotelCard } from '@/components/hotel-card'
-import { searchHotels } from '@/features/hotels/hotel-service'
-import { Amenity } from '@/features/hotels/hotel-types'
+import { fetchHotels } from '@/features/hotels/hotel-api-client'
+import { Amenity, Hotel } from '@/features/hotels/hotel-types'
 import { Search, SlidersHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,6 +27,9 @@ function BuscaContent() {
     stars: [] as number[],
   })
   
+  const [hotels, setHotels] = useState<Hotel[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>('rating')
   const [showMobileFilters, setShowMobileFilters] = useState(false)
 
@@ -39,19 +42,50 @@ function BuscaContent() {
     }
   }, [searchParams])
 
-  // Filter and sort hotels
-  const filteredHotels = useMemo(() => {
-    let results = searchHotels({
-      city: filters.city || undefined,
-      state: filters.state || undefined,
-      priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
-      priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
-      amenities: filters.amenities.length > 0 ? filters.amenities : undefined,
-      minRating: filters.minRating ? Number(filters.minRating) : undefined,
-      stars: filters.stars.length > 0 ? filters.stars : undefined,
-    })
+  useEffect(() => {
+    const controller = new AbortController()
 
-    // Sort
+    async function loadHotels() {
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const response = await fetchHotels(
+          {
+            city: filters.city || undefined,
+            state: filters.state || undefined,
+            guests: searchParams.get('hospedes') ? Number(searchParams.get('hospedes')) : undefined,
+            priceMin: filters.priceMin ? Number(filters.priceMin) : undefined,
+            priceMax: filters.priceMax ? Number(filters.priceMax) : undefined,
+            amenities: filters.amenities.length > 0 ? filters.amenities : undefined,
+            minRating: filters.minRating ? Number(filters.minRating) : undefined,
+            stars: filters.stars.length > 0 ? filters.stars : undefined,
+          },
+          controller.signal
+        )
+
+        setHotels(response.data)
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return
+
+        setHotels([])
+        setError(err instanceof Error ? err.message : 'Nao foi possivel carregar os hoteis.')
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadHotels()
+
+    return () => controller.abort()
+  }, [filters, searchParams])
+
+  // Sort gateway results locally to keep the UI responsive.
+  const filteredHotels = useMemo(() => {
+    const results = [...hotels]
+
     switch (sortBy) {
       case 'price-asc':
         results.sort((a, b) => a.priceFrom - b.priceFrom)
@@ -68,7 +102,7 @@ function BuscaContent() {
     }
 
     return results
-  }, [filters, sortBy])
+  }, [hotels, sortBy])
 
   const clearFilters = () => {
     setFilters({
@@ -96,8 +130,16 @@ function BuscaContent() {
             }
           </h1>
           <p className="text-muted-foreground">
-            {filteredHotels.length} {filteredHotels.length === 1 ? 'hotel encontrado' : 'hotéis encontrados'}
+            {isLoading
+              ? 'Carregando hotéis...'
+              : `${filteredHotels.length} ${filteredHotels.length === 1 ? 'hotel encontrado' : 'hotéis encontrados'}`
+            }
           </p>
+          {error && (
+            <p className="mt-2 text-sm text-destructive">
+              Nao foi possivel consultar o API Gateway: {error}
+            </p>
+          )}
         </div>
 
         {/* Quick Search Bar */}
@@ -170,7 +212,16 @@ function BuscaContent() {
 
           {/* Results Grid */}
           <div className="flex-1">
-            {filteredHotels.length > 0 ? (
+            {isLoading ? (
+              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="h-80 animate-pulse rounded-xl border border-border bg-muted"
+                  />
+                ))}
+              </div>
+            ) : filteredHotels.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 {filteredHotels.map((hotel) => (
                   <HotelCard key={hotel.id} hotel={hotel} />

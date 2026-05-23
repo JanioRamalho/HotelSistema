@@ -1,0 +1,170 @@
+[
+  {
+    "id": "1",
+    "name": "Grand Hotel Copacabana",
+    "slug": "grand-hotel-copacabana",
+    "description": "Hotel de luxo na orla de Copacabana, com vista para o mar, spa, restaurante e quartos amplos.",
+    "shortDescription": "Luxo a beira-mar em Copacabana",
+    "address": "Av. Atlantica, 1702",
+    "city": "Rio de Janeiro",
+    "state": "RJ",
+    "country": "Brasil",
+    "zipCode": "22021-001",
+    "latitude": -22.9714,
+    "longitude": -43.1822,
+    "stars": 5,
+    "rating": 4.8,
+    "reviewCount": 1247,
+    "priceFrom": 890,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+        "alt": "Fachada do hotel",
+        "category": "exterior"
+      }
+    ],
+    "amenities": ["wifi", "pool", "gym", "spa", "restaurant", "bar", "room-service", "parking", "air-conditioning", "breakfast", "beach-access"],
+    "rooms": [
+      {
+        "id": "1-1",
+        "name": "Quarto Standard",
+        "description": "Quarto com vista para a cidade",
+        "category": "economic",
+        "price": 890,
+        "capacity": 2,
+        "size": 28,
+        "amenities": ["wifi", "air-conditioning", "room-service"],
+        "images": ["https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "r1",
+        "userId": "u1",
+        "userName": "Maria Silva",
+        "rating": 5,
+        "comment": "Experiencia incrivel e atendimento muito cuidadoso.",
+        "date": "2024-01-15",
+        "stayDate": "2024-01-10"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Nao aceitamos pets",
+      "children": "Criancas ate 6 anos nao pagam"
+    },
+    "contact": {
+      "phone": "(21) 3222-1234",
+      "email": "reservas@grandcopacabana.com.br",
+      "website": "www.grandcopacabana.com.br"
+    }
+  },
+  {
+    "id": "2",
+    "name": "Pousada Vila do Mar",
+    "slug": "pousada-vila-do-mar",
+    "description": "Pousada familiar em Buzios, perto da praia, com cafe da manha e ambiente tranquilo.",
+    "shortDescription": "Charme e aconchego em Buzios",
+    "address": "Rua das Pedras, 450",
+    "city": "Buzios",
+    "state": "RJ",
+    "country": "Brasil",
+    "zipCode": "28950-000",
+    "latitude": -22.7496,
+    "longitude": -41.8817,
+    "stars": 3,
+    "rating": 4.6,
+    "reviewCount": 523,
+    "priceFrom": 320,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
+        "alt": "Pousada vista externa",
+        "category": "exterior"
+      }
+    ],
+    "amenities": ["wifi", "pool", "parking", "air-conditioning", "breakfast", "pet-friendly", "beach-access"],
+    "rooms": [
+      {
+        "id": "2-1",
+        "name": "Quarto Aconchego",
+        "description": "Quarto simples e confortavel",
+        "category": "economic",
+        "price": 320,
+        "capacity": 2,
+        "size": 20,
+        "amenities": ["wifi", "air-conditioning"],
+        "images": ["https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=800"],
+        "available": true
+      }
+    ],
+    "reviews": [],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "11:00",
+      "cancellation": "Cancelamento gratuito ate 72h antes do check-in",
+      "pets": "Aceitamos pets de pequeno porte",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(22) 2623-4567",
+      "email": "contato@viladomar.com.br"
+    }
+  },
+  {
+    "id": "3",
+    "name": "Resort Praia do Forte",
+    "slug": "resort-praia-do-forte",
+    "description": "Resort all-inclusive na Bahia com piscina, spa, restaurante e atividades para familias.",
+    "shortDescription": "Resort all-inclusive na Bahia",
+    "address": "Alameda do Sol, s/n",
+    "city": "Mata de Sao Joao",
+    "state": "BA",
+    "country": "Brasil",
+    "zipCode": "48280-000",
+    "latitude": -12.5761,
+    "longitude": -38.0019,
+    "stars": 5,
+    "rating": 4.9,
+    "reviewCount": 2156,
+    "priceFrom": 1650,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800",
+        "alt": "Vista aerea do resort",
+        "category": "exterior"
+      }
+    ],
+    "amenities": ["wifi", "pool", "gym", "spa", "restaurant", "bar", "room-service", "parking", "air-conditioning", "breakfast", "beach-access", "kids-club"],
+    "rooms": [
+      {
+        "id": "3-1",
+        "name": "Apartamento Garden",
+        "description": "Apartamento terreo com acesso ao jardim",
+        "category": "standard",
+        "price": 1650,
+        "capacity": 3,
+        "size": 40,
+        "amenities": ["wifi", "air-conditioning", "breakfast"],
+        "images": ["https://images.unsplash.com/photo-1598928506311-c55ez3ce5bba?w=800"],
+        "available": true
+      }
+    ],
+    "reviews": [],
+    "policies": {
+      "checkIn": "15:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 7 dias antes do check-in",
+      "pets": "Nao aceitamos pets",
+      "children": "Criancas ate 12 anos nao pagam"
+    },
+    "contact": {
+      "phone": "(71) 3676-8900",
+      "email": "reservas@resortpraiadoforte.com.br",
+      "website": "www.resortpraiadoforte.com.br"
+    }
+  }
+]
