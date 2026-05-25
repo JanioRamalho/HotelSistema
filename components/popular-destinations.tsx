@@ -1,9 +1,11 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { hotels } from '@/features/hotels/hotel-data'
+import { fetchHotels } from '@/features/hotels/hotel-api-client'
+import { Hotel } from '@/features/hotels/hotel-types'
 import { HotelCard } from './hotel-card'
 
 const popularDestinations = [
@@ -30,8 +32,38 @@ const popularDestinations = [
 ]
 
 export function PopularDestinations() {
+  const [hotels, setHotels] = useState<Hotel[]>([])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadFeaturedHotels() {
+      try {
+        const response = await fetchHotels({}, controller.signal)
+        setHotels(response.data)
+      } catch {
+        setHotels([])
+      }
+    }
+
+    loadFeaturedHotels()
+
+    return () => controller.abort()
+  }, [])
+
+  const destinationCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+
+    hotels.forEach((hotel) => {
+      const key = `${hotel.city}-${hotel.state}`
+      counts.set(key, (counts.get(key) || 0) + 1)
+    })
+
+    return counts
+  }, [hotels])
+
   const getDestinationHotelCount = (city: string, state: string) =>
-    hotels.filter((hotel) => hotel.city === city && hotel.state === state).length
+    destinationCounts.get(`${city}-${state}`) || 0
 
   return (
     <section id="destinos" className="bg-muted py-16">

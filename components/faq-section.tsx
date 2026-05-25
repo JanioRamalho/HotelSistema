@@ -5,7 +5,7 @@ import { ChevronDown, HelpCircle } from 'lucide-react'
 
 const faqs = [
   {
-    question: 'Como faço uma reserva na StayHub?',
+    question: 'Como faço uma reserva na Viajei?',
     answer: 'É muito simples! Basta pesquisar o destino desejado, selecionar as datas de check-in e check-out, escolher o hotel que mais lhe agrada e clicar em "Reservar". Você será guiado pelo processo de pagamento seguro e receberá a confirmação por e-mail.'
   },
   {
@@ -14,7 +14,7 @@ const faqs = [
   },
   {
     question: 'Os preços incluem todas as taxas?',
-    answer: 'Sim, todos os preços exibidos na StayHub incluem impostos e taxas de serviço. Não há custos ocultos. Algumas propriedades podem cobrar taxas extras no local (como taxa de resort ou estacionamento), mas isso é sempre informado claramente antes da reserva.'
+    answer: 'Sim, todos os preços exibidos na Viajei incluem impostos e taxas de serviço. Não há custos ocultos. Algumas propriedades podem cobrar taxas extras no local (como taxa de resort ou estacionamento), mas isso é sempre informado claramente antes da reserva.'
   },
   {
     question: 'Como funciona o filtro de comodidades?',
@@ -45,7 +45,7 @@ export function FaqSection() {
             Perguntas Frequentes
           </h2>
           <p className="mx-auto max-w-2xl text-muted-foreground text-pretty">
-            Tire suas dúvidas sobre como usar a StayHub para encontrar e reservar hotéis
+            Tire suas dúvidas sobre como usar a Viajei para encontrar e reservar hotéis
           </p>
         </div>
 

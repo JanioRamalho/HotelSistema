@@ -41,7 +41,7 @@ export function Footer() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
                 <span className="text-lg font-bold text-primary-foreground">S</span>
               </div>
-              <span className="text-xl font-bold text-foreground">StayHub</span>
+              <span className="text-xl font-bold text-foreground">Viajei</span>
             </Link>
             <p className="mb-4 max-w-sm text-sm text-muted-foreground text-pretty leading-relaxed">
               Sua plataforma de reservas de hotéis em todo o Brasil. Compare preços, veja avaliações e reserve com segurança.
@@ -142,7 +142,7 @@ export function Footer() {
           {/* Bottom */}
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="text-center text-xs text-muted-foreground sm:text-left">
-              &copy; {new Date().getFullYear()} StayHub Tecnologia Ltda. CNPJ: 00.000.000/0001-00. Todos os direitos reservados.
+              &copy; {new Date().getFullYear()} Viajei Tecnologia Ltda. CNPJ: 00.000.000/0001-00. Todos os direitos reservados.
             </p>
             <div className="flex items-center gap-3">
               <img

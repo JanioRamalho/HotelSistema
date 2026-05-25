@@ -72,39 +72,26 @@ function prepareTranslatedSchema(db) {
   db.exec('PRAGMA foreign_keys = ON;')
 }
 
-function openDatabase() {
+export function db() {
   if (!database) {
     database = new DatabaseSync(databasePath)
     database.exec('PRAGMA foreign_keys = ON;')
     database.exec('PRAGMA journal_mode = WAL;')
+
+    if (!existsSync(schemaPath)) {
+      throw new Error(`Schema SQL nao encontrado em ${schemaPath}`)
+    }
+
+    prepareTranslatedSchema(database)
+    database.exec(readFileSync(schemaPath, 'utf8'))
+    if (existsSync(seedPath)) {
+      database.exec(readFileSync(seedPath, 'utf8'))
+    }
   }
 
   return database
 }
 
-export function initializeSQLiteDatabase() {
-  const db = openDatabase()
-
-  if (!existsSync(schemaPath)) {
-    throw new Error(`Schema SQL nao encontrado em ${schemaPath}`)
-  }
-
-  prepareTranslatedSchema(db)
-  db.exec(readFileSync(schemaPath, 'utf8'))
-
-  if (existsSync(seedPath)) {
-    db.exec(readFileSync(seedPath, 'utf8'))
-  }
-}
-
-export function getSQLiteDatabasePath() {
-  return databasePath
-}
-
-export function querySQLite(sql, params = []) {
-  return openDatabase().prepare(sql).all(...params)
-}
-
-export function getSQLite(sql, params = []) {
-  return openDatabase().prepare(sql).get(...params)
+export function databaseInfo() {
+  return { databasePath }
 }

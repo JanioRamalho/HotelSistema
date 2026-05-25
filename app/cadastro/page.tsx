@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { 
   Eye, EyeOff, Mail, Lock, User, Phone, Calendar, 
-  MapPin, ArrowLeft, Check 
+  MapPin, ArrowLeft, Check, KeyRound, Loader2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select'
+import { confirmPasswordRegister, registerWithPassword } from '@/features/hotels/hotel-experience-api'
 
 interface FormData {
   // Dados pessoais
@@ -49,11 +50,18 @@ const estadosBrasileiros = [
 ]
 
 export default function CadastroPage() {
+  // Aba de autenticacao: esta tela cria a conta por e-mail e senha
+  // antes do usuario entrar e liberar a carteira demo.
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [pendingEmail, setPendingEmail] = useState('')
+  const [feedbackMessage, setFeedbackMessage] = useState('')
+  const [loadingMessage, setLoadingMessage] = useState('')
+  const [generalError, setGeneralError] = useState('')
   
   const [formData, setFormData] = useState<FormData>({
     nomeCompleto: '',
@@ -174,12 +182,55 @@ export default function CadastroPage() {
     if (!validateStep2()) return
 
     setIsLoading(true)
-    
-    // Simulação de cadastro - substituir por integração real
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    setIsLoading(false)
-    router.push('/login?cadastro=sucesso')
+    setLoadingMessage('Validando seus dados e enviando o codigo...')
+    setErrors({})
+    setGeneralError('')
+
+    try {
+      await registerWithPassword({
+        name: formData.nomeCompleto,
+        email: formData.email,
+        password: formData.senha,
+        phone: formData.telefone,
+        document: formData.cpf,
+        birthdate: formData.dataNascimento,
+        zipCode: formData.cep,
+      })
+      setPendingEmail(formData.email)
+      setFeedbackMessage('Enviamos um codigo para seu e-mail. Confirme para concluir o cadastro.')
+      setCurrentStep(3)
+    } catch (error) {
+      setGeneralError(error instanceof Error ? error.message : 'Nao foi possivel criar a conta.')
+    } finally {
+      setIsLoading(false)
+      setLoadingMessage('')
+    }
+  }
+
+  const handleConfirmRegistration = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (verificationCode.length !== 6 || !pendingEmail) {
+      setErrors({ codigo: 'Informe o codigo de 6 digitos enviado ao seu e-mail.' })
+      return
+    }
+
+    setIsLoading(true)
+    setLoadingMessage('Conferindo o codigo...')
+    setErrors({})
+    setGeneralError('')
+
+    try {
+      await confirmPasswordRegister(pendingEmail, verificationCode)
+      router.push(`/login?cadastro=verificar&email=${encodeURIComponent(pendingEmail)}`)
+    } catch (error) {
+      setErrors({
+        codigo: error instanceof Error ? error.message : 'Nao foi possivel confirmar o cadastro.',
+      })
+    } finally {
+      setIsLoading(false)
+      setLoadingMessage('')
+    }
   }
 
   const passwordStrength = () => {
@@ -216,7 +267,7 @@ export default function CadastroPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
               <span className="text-xl font-bold">S</span>
             </div>
-            <span className="text-2xl font-bold">StayHub</span>
+            <span className="text-2xl font-bold">Viajei</span>
           </Link>
           
           <div className="space-y-8">
@@ -261,7 +312,7 @@ export default function CadastroPage() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
                 <span className="text-lg font-bold text-primary-foreground">S</span>
               </div>
-              <span className="text-xl font-bold text-foreground">StayHub</span>
+              <span className="text-xl font-bold text-foreground">Viajei</span>
             </Link>
           </div>
 
@@ -286,20 +337,40 @@ export default function CadastroPage() {
             }`}>
               2
             </div>
+            <div className={`flex-1 h-1 rounded ${currentStep >= 3 ? 'bg-primary' : 'bg-muted'}`} />
+            <div className={`flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium ${
+              currentStep >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+            }`}>
+              3
+            </div>
           </div>
 
           <div className="space-y-1 mb-6">
             <h2 className="text-2xl font-bold text-foreground">
-              {currentStep === 1 ? 'Dados Pessoais' : 'Criar Senha'}
+              {currentStep === 1 ? 'Dados Pessoais' : currentStep === 2 ? 'Criar Senha' : 'Verificar E-mail'}
             </h2>
             <p className="text-muted-foreground text-sm">
               {currentStep === 1 
                 ? 'Preencha suas informações para criar sua conta' 
-                : 'Crie uma senha segura para proteger sua conta'}
+                : currentStep === 2
+                  ? 'Crie uma senha segura para proteger sua conta'
+                  : 'Digite o codigo enviado para concluir seu cadastro'}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={currentStep === 3 ? handleConfirmRegistration : handleSubmit} className="space-y-4">
+            {loadingMessage && (
+              <div className="rounded-lg border border-border bg-muted p-3 text-sm text-muted-foreground">
+                {loadingMessage}
+              </div>
+            )}
+
+            {generalError && (
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                {generalError}
+              </div>
+            )}
+
             {currentStep === 1 && (
               <>
                 {/* Nome Completo */}
@@ -641,6 +712,45 @@ export default function CadastroPage() {
                     {isLoading ? 'Criando conta...' : 'Criar conta'}
                   </Button>
                 </div>
+              </>
+            )}
+
+            {currentStep === 3 && (
+              <>
+                <div className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+                  {feedbackMessage || `Enviamos um codigo para ${pendingEmail}.`}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="codigo">
+                    Codigo de verificacao <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="codigo"
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="000000"
+                      className={`pl-10 ${errors.codigo ? 'border-destructive' : ''}`}
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    />
+                  </div>
+                  {errors.codigo && (
+                    <p className="text-xs text-destructive">{errors.codigo}</p>
+                  )}
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={isLoading || verificationCode.length !== 6}
+                >
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Confirmar cadastro
+                </Button>
               </>
             )}
           </form>

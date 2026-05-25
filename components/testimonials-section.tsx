@@ -10,7 +10,7 @@ const testimonials = [
     name: 'Mariana Silva',
     location: 'São Paulo, SP',
     rating: 5,
-    text: 'Encontrei o hotel perfeito para minha lua de mel! O processo de reserva foi super simples e o preço estava ótimo. Recomendo muito a StayHub!',
+    text: 'Encontrei o hotel perfeito para minha lua de mel! O processo de reserva foi super simples e o preço estava ótimo. Recomendo muito a Viajei!',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200',
     hotel: 'Resort Praia do Forte, BA',
   },
@@ -19,7 +19,7 @@ const testimonials = [
     name: 'Carlos Eduardo',
     location: 'Rio de Janeiro, RJ',
     rating: 5,
-    text: 'Uso a StayHub para todas as minhas viagens de trabalho. A variedade de hotéis e os filtros de busca facilitam muito encontrar o que preciso rapidamente.',
+    text: 'Uso a Viajei para todas as minhas viagens de trabalho. A variedade de hotéis e os filtros de busca facilitam muito encontrar o que preciso rapidamente.',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
     hotel: 'Hotel Urbano São Paulo',
   },
@@ -73,7 +73,7 @@ export function TestimonialsSection() {
             O Que Nossos Clientes Dizem
           </h2>
           <p className="mx-auto max-w-2xl text-muted-foreground text-pretty">
-            Milhares de viajantes já encontraram a hospedagem perfeita através da StayHub
+            Milhares de viajantes já encontraram a hospedagem perfeita através da Viajei
           </p>
         </div>
 

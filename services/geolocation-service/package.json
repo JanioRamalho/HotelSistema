@@ -1,12 +1,10 @@
 {
-  "name": "@hotel-sistema/hotel-service",
+  "name": "@hotel-sistema/geolocation-service",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "node src/index.js",
-    "dev:instance1": "node scripts/start-instance-1.js",
-    "dev:instance2": "node scripts/start-instance-2.js",
     "start": "node src/index.js"
   },
   "engines": {

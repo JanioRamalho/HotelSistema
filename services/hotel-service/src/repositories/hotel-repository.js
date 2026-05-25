@@ -1,9 +1,10 @@
 import { getSQLiteDatabasePath, getSQLite, initializeSQLiteDatabase, querySQLite } from '../database/sqlite-client.js'
+import { dummyHotels } from '../data/dummy-hotels.js'
 
 initializeSQLiteDatabase()
 
 export function getHotelDataSource() {
-  return 'sqlite-local'
+  return 'sqlite-local+dummy-api'
 }
 
 export function getHotelDatabasePath() {
@@ -27,36 +28,36 @@ function toList(value) {
 function mapHotelRow(row) {
   return {
     id: row.id,
-    name: row.name,
+    name: row.nome,
     slug: row.slug,
-    description: row.description,
-    shortDescription: row.short_description,
-    address: row.address,
-    city: row.city,
-    state: row.state,
-    country: row.country,
-    zipCode: row.zip_code,
+    description: row.descricao,
+    shortDescription: row.descricao_curta,
+    address: row.endereco,
+    city: row.cidade,
+    state: row.estado,
+    country: row.pais,
+    zipCode: row.cep,
     latitude: row.latitude,
     longitude: row.longitude,
-    stars: row.stars,
-    rating: row.rating,
-    reviewCount: row.review_count,
-    priceFrom: row.price_from,
+    stars: row.estrelas,
+    rating: row.nota,
+    reviewCount: row.quantidade_avaliacoes,
+    priceFrom: row.preco_inicial,
     images: [],
     amenities: [],
     rooms: [],
     reviews: [],
     policies: {
-      checkIn: row.policy_check_in,
-      checkOut: row.policy_check_out,
-      cancellation: row.policy_cancellation,
-      pets: row.policy_pets,
-      children: row.policy_children,
+      checkIn: row.politica_check_in,
+      checkOut: row.politica_check_out,
+      cancellation: row.politica_cancelamento,
+      pets: row.politica_pets,
+      children: row.politica_criancas,
     },
     contact: {
-      phone: row.contact_phone,
-      email: row.contact_email,
-      ...(row.contact_website ? { website: row.contact_website } : {}),
+      phone: row.contato_telefone,
+      email: row.contato_email,
+      ...(row.contato_site ? { website: row.contato_site } : {}),
     },
   }
 }
@@ -66,77 +67,77 @@ async function hydrateHotels(hotelRows) {
 
   hotels.forEach((hotel) => {
     const images = querySQLite(
-      `SELECT url, alt, category
-       FROM hotel_images
+      `SELECT url, texto_alternativo, categoria
+       FROM imagens_hotel
        WHERE hotel_id = ?
-       ORDER BY sort_order, id`,
+       ORDER BY ordem, id`,
       [hotel.id]
     )
     const amenities = querySQLite(
-      `SELECT amenity_id
-       FROM hotel_amenities
+      `SELECT comodidade_id
+       FROM hoteis_comodidades
        WHERE hotel_id = ?
-       ORDER BY amenity_id`,
+       ORDER BY comodidade_id`,
       [hotel.id]
     )
     const rooms = querySQLite(
-      `SELECT id, name, description, category, price, capacity, size, available
-       FROM rooms
+      `SELECT id, nome, descricao, categoria, preco, capacidade, tamanho, disponivel
+       FROM quartos
        WHERE hotel_id = ?
-       ORDER BY price, id`,
+       ORDER BY preco, id`,
       [hotel.id]
     )
     const reviews = querySQLite(
-      `SELECT id, COALESCE(user_id, '') AS user_id, user_name, user_avatar, rating, comment, date, stay_date
-       FROM reviews
+      `SELECT id, COALESCE(usuario_id, '') AS usuario_id, nome_usuario, avatar_usuario, nota, comentario, data_avaliacao, data_hospedagem
+       FROM avaliacoes
        WHERE hotel_id = ?
-       ORDER BY date DESC, id`,
+       ORDER BY data_avaliacao DESC, id`,
       [hotel.id]
     )
 
     hotel.images = images.map((image) => ({
       url: image.url,
-      alt: image.alt,
-      category: image.category,
+      alt: image.texto_alternativo,
+      category: image.categoria,
     }))
-    hotel.amenities = amenities.map((amenity) => amenity.amenity_id)
+    hotel.amenities = amenities.map((amenity) => amenity.comodidade_id)
     hotel.reviews = reviews.map((review) => ({
       id: review.id,
-      userId: review.user_id,
-      userName: review.user_name,
-      ...(review.user_avatar ? { userAvatar: review.user_avatar } : {}),
-      rating: review.rating,
-      comment: review.comment,
-      date: review.date,
-      stayDate: review.stay_date,
+      userId: review.usuario_id,
+      userName: review.nome_usuario,
+      ...(review.avatar_usuario ? { userAvatar: review.avatar_usuario } : {}),
+      rating: review.nota,
+      comment: review.comentario,
+      date: review.data_avaliacao,
+      stayDate: review.data_hospedagem,
     }))
     hotel.rooms = rooms.map((room) => {
       const roomImages = querySQLite(
         `SELECT url
-         FROM room_images
-         WHERE room_id = ?
-         ORDER BY sort_order, id`,
+         FROM imagens_quarto
+         WHERE quarto_id = ?
+         ORDER BY ordem, id`,
         [room.id]
       )
       const roomAmenities = querySQLite(
-        `SELECT amenity_id
-         FROM room_amenities
-         WHERE room_id = ?
-         ORDER BY amenity_id`,
+        `SELECT comodidade_id
+         FROM quartos_comodidades
+         WHERE quarto_id = ?
+         ORDER BY comodidade_id`,
         [room.id]
       )
 
       return {
         id: room.id,
-        name: room.name,
-        description: room.description,
-        category: room.category,
-        price: room.price,
-        capacity: room.capacity,
-        size: room.size,
-        amenities: roomAmenities.map((amenity) => amenity.amenity_id),
+        name: room.nome,
+        description: room.descricao,
+        category: room.categoria,
+        price: room.preco,
+        capacity: room.capacidade,
+        size: room.tamanho,
+        amenities: roomAmenities.map((amenity) => amenity.comodidade_id),
         images: roomImages.map((image) => image.url),
-        available: Boolean(room.available),
+        available: Boolean(room.disponivel),
       }
     })
   })
@@ -157,73 +158,119 @@ export function parseHotelFilters(searchParams) {
   }
 }
 
+function normalizeText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+}
+
+function matchesDummyHotel(hotel, filters) {
+  if (filters.city && !normalizeText(hotel.city).includes(normalizeText(filters.city))) return false
+  if (filters.state && hotel.state !== filters.state) return false
+  if (filters.guests && !hotel.rooms.some((room) => room.capacity >= filters.guests)) return false
+  if (filters.priceMin && hotel.priceFrom < filters.priceMin) return false
+  if (filters.priceMax && hotel.priceFrom > filters.priceMax) return false
+  if (filters.minRating && hotel.rating < filters.minRating) return false
+  if (filters.stars.length > 0 && !filters.stars.includes(hotel.stars)) return false
+  if (filters.amenities.length > 0 && !filters.amenities.every((amenity) => hotel.amenities.includes(amenity))) return false
+  return true
+}
+
+function searchDummyHotels(filters) {
+  return dummyHotels
+    .filter((hotel) => matchesDummyHotel(hotel, filters))
+    .sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount || a.name.localeCompare(b.name))
+}
+
+function mergeHotels(databaseHotels, fallbackHotels) {
+  const seen = new Set(databaseHotels.map((hotel) => hotel.slug))
+  return [
+    ...databaseHotels,
+    ...fallbackHotels.filter((hotel) => !seen.has(hotel.slug)),
+  ]
+}
+
 export async function searchHotels(filters) {
   const conditions = []
   const params = []
 
   if (filters.city) {
-    conditions.push('LOWER(h.city) LIKE LOWER(?)')
+    conditions.push('LOWER(h.cidade) LIKE LOWER(?)')
     params.push(`%${filters.city}%`)
   }
 
   if (filters.state) {
-    conditions.push('h.state = ?')
+    conditions.push('h.estado = ?')
     params.push(filters.state)
   }
 
   if (filters.guests) {
-    conditions.push('EXISTS (SELECT 1 FROM rooms r WHERE r.hotel_id = h.id AND r.capacity >= ?)')
+    conditions.push('EXISTS (SELECT 1 FROM quartos q WHERE q.hotel_id = h.id AND q.capacidade >= ?)')
     params.push(filters.guests)
   }
 
   if (filters.priceMin) {
-    conditions.push('h.price_from >= ?')
+    conditions.push('h.preco_inicial >= ?')
     params.push(filters.priceMin)
   }
 
   if (filters.priceMax) {
-    conditions.push('h.price_from <= ?')
+    conditions.push('h.preco_inicial <= ?')
     params.push(filters.priceMax)
   }
 
   if (filters.minRating) {
-    conditions.push('h.rating >= ?')
+    conditions.push('h.nota >= ?')
     params.push(filters.minRating)
   }
 
   if (filters.stars.length > 0) {
-    conditions.push(`h.stars IN (${filters.stars.map(() => '?').join(', ')})`)
+    conditions.push(`h.estrelas IN (${filters.stars.map(() => '?').join(', ')})`)
     params.push(...filters.stars)
   }
 
   filters.amenities.forEach((amenity) => {
-    conditions.push('EXISTS (SELECT 1 FROM hotel_amenities ha WHERE ha.hotel_id = h.id AND ha.amenity_id = ?)')
+    conditions.push('EXISTS (SELECT 1 FROM hoteis_comodidades hc WHERE hc.hotel_id = h.id AND hc.comodidade_id = ?)')
     params.push(amenity)
   })
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
   const rows = querySQLite(
     `SELECT h.*
-     FROM hotels h
+     FROM hoteis h
      ${where}
-     ORDER BY h.rating DESC, h.review_count DESC, h.name ASC`,
+     ORDER BY h.nota DESC, h.quantidade_avaliacoes DESC, h.nome ASC`,
     params
   )
 
-  return hydrateHotels(rows)
+  const databaseHotels = await hydrateHotels(rows)
+  return mergeHotels(databaseHotels, searchDummyHotels(filters))
 }
 
 export async function getHotelBySlug(slug) {
-  const hotel = getSQLite('SELECT * FROM hotels WHERE slug = ? LIMIT 1', [slug])
+  const hotel = getSQLite('SELECT * FROM hoteis WHERE slug = ? LIMIT 1', [slug])
   const hotels = await hydrateHotels(hotel ? [hotel] : [])
-  return hotels[0]
+  return hotels[0] || dummyHotels.find((item) => item.slug === slug)
 }
 
 export async function getUniqueCities() {
-  return querySQLite('SELECT DISTINCT city, state FROM hotels ORDER BY city, state')
+  const rows = querySQLite('SELECT DISTINCT cidade, estado FROM hoteis ORDER BY cidade, estado')
+  const cities = rows.map((row) => ({ city: row.cidade, state: row.estado }))
+  const keys = new Set(cities.map((item) => `${item.city}-${item.state}`))
+
+  dummyHotels.forEach((hotel) => {
+    const key = `${hotel.city}-${hotel.state}`
+    if (!keys.has(key)) {
+      cities.push({ city: hotel.city, state: hotel.state })
+      keys.add(key)
+    }
+  })
+
+  return cities.sort((a, b) => a.city.localeCompare(b.city) || a.state.localeCompare(b.state))
 }
 
 export async function getUniqueStates() {
-  const rows = querySQLite('SELECT DISTINCT state FROM hotels ORDER BY state')
-  return rows.map((row) => row.state)
+  const rows = querySQLite('SELECT DISTINCT estado FROM hoteis ORDER BY estado')
+  return [...new Set([...rows.map((row) => row.estado), ...dummyHotels.map((hotel) => hotel.state)])].sort()
 }

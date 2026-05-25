@@ -14,7 +14,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'StayHub | Encontre o Hotel Perfeito para sua Viagem',
+  title: 'Viajei | Encontre o Hotel Perfeito para sua Viagem',
   description: 'Compare preços, veja avaliações e reserve hotéis em todo o Brasil. Encontre as melhores ofertas em pousadas, resorts e hotéis de luxo.',
   keywords: ['hotéis', 'reservas', 'hospedagem', 'viagem', 'pousadas', 'resorts', 'Brasil'],
 }

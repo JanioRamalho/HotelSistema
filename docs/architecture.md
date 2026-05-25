@@ -1,95 +1,159 @@
-# Arquitetura Distribuida Do HotelSistema
+# Arquitetura Final Do Viajei
 
-Este projeto esta sendo preparado para sair de um frontend com dados estaticos e evoluir para uma arquitetura distribuida com gateway, microsservicos, banco SQL local, storage de imagens e infraestrutura reproduzivel.
+O Viajei usa uma arquitetura modular para demonstrar conceitos de sistemas distribuidos sem deixar o projeto pesado para apresentacao academica.
 
-## Desenho Inicial
+## Visao Geral
 
 ```txt
 Browser
   |
   v
-Next.js Web App
+Frontend Next.js
   |
   v
 API Gateway
+  |-- rate limiting
+  |-- load balancing round-robin
+  |-- logs estruturados
+  |-- metricas de carga
   |
-  +-- Hotel Service
-  |     +-- SQLite local
-  +-- Auth Service
-  +-- Booking Service
-  +-- User Service
-  +-- Media Service
-  +-- Geolocation Service
-  +-- Recommendation Service
+  +-- Hotel Service Cluster
+  |     |-- hotel-service-1 :4101
+  |     |-- hotel-service-2 :4102
+  |     v
+  |   SQLite local
+  |
+  +-- Auth Service :4201
+  |     |-- login com e-mail e senha
+  |     |-- codigo enviado por e-mail
+  |     |-- cria a carteira bonus apos validar o codigo
+  |     v
+  |   SQLite local
+  |
+  +-- Booking/Wallet Service :4202
+  |     |-- saldo demo de R$ 20.000 por usuario logado
+  |     |-- reserva demo
+  |     |-- transacoes de carteira
+  |     v
+  |   SQLite local
+  |
+  +-- Media Service :4203
+  |     |-- upload local
+  |     |-- simulacao de S3
+  |
+  +-- Geolocation Service :4204
+  |     |-- coordenadas dos hoteis
+  |     |-- base para mapa
+  |     v
+  |   SQLite local
+  |
+  +-- Validation Service Python :4205
+        |-- CPF
+        |-- CEP
+        |-- data de nascimento
+        |-- dados do hospede
 ```
 
-## Infraestrutura Local
+## Componentes
 
-O arquivo `infra/docker-compose.yml` sobe a primeira base:
+- `app/` e `components/`: frontend Next.js. A interface visual deve permanecer desacoplada da arquitetura interna.
+- `services/api-gateway`: entrada unica da API. Aplica rate limiting, registra logs, expoe metricas e distribui carga.
+- `services/hotel-service`: busca e detalhe de hoteis. Pode rodar em cluster local nas portas `4101` e `4102`. Tambem possui uma Dummy API interna com hoteis ficticios para popular cidades e estados sem depender de API externa.
+- `services/auth-service`: cadastro com e-mail/senha, login com e-mail/senha e codigo enviado ao e-mail da conta.
+- `services/booking-service`: carteira demo e reservas com desconto de saldo.
+- `services/media-service`: upload local simulando S3.
+- `services/geolocation-service`: consulta coordenadas do hotel para uso em mapa.
+- `services/validation-service`: microsservico Python para validar CPF, CEP, data de nascimento, telefone e dados do hospede antes da reserva.
+- `infra/database`: schema e seed do SQLite.
 
-- `api-gateway`: entrada unica para o frontend.
-- `hotel-service-a` e `hotel-service-b`: duas instancias do servico de hoteis.
-- `postgres`: banco transacional opcional/local para uma evolucao futura.
-- `redis`: cache, rate limit e filas leves.
-- `minio`: storage compativel com S3 para imagens.
+## Banco
 
-O gateway faz round-robin entre as instancias do `hotel-service` usando `HOTEL_SERVICE_URLS`.
-O `hotel-service` usa SQLite local como fonte principal de dados, com banco padrao em `hoteis.db`.
+O banco principal da versao academica e SQLite local:
 
-## Banco SQL Local
+```txt
+hoteis.db
+```
 
-O schema oficial fica versionado em `infra/database/schema.sql`.
-O seed inicial fica em `infra/database/seed-hotels.sql`.
+O schema versionado fica em:
 
-O modelo prepara:
+```txt
+infra/database/schema.sql
+infra/database/seed-hotels.sql
+```
 
-- hoteis, imagens, quartos, comodidades e avaliacoes;
-- usuarios, favoritos, reservas e verificacoes de email;
-- latitude e longitude para a futura geolocalizacao por endereco;
-- metadados `s3_key`, dimensoes e tamanho para a futura integracao MinIO/S3.
-- uma troca futura para Cloudflare D1, Turso/libSQL ou PostgreSQL sem alterar o frontend.
+O banco guarda hoteis, quartos, imagens, comodidades, usuarios, verificacoes de email, reservas, favoritos, carteiras e transacoes.
+As tabelas e colunas do SQLite foram nomeadas em portugues para deixar o modelo mais claro na apresentacao academica, enquanto as APIs mantem o contrato consumido pelo frontend.
+O saldo bonus de R$ 20.000 fica registrado na conta do usuario depois do login, na tabela `carteiras`.
+No login com senha, a carteira so e liberada apos credenciais validas e validacao do codigo recebido por e-mail.
 
-## Endpoints Da Primeira Fase
+## Endpoints Principais
 
 Gateway:
 
 - `GET /health`
+- `GET /metrics`
 - `GET /api/hotels`
 - `GET /api/hotels/:slug`
-- `GET /api/cities`
-- `GET /api/states`
-- `GET /api/auth/google` retorna `501` por enquanto, reservado para o futuro `auth-service`.
+- `GET /api/geolocation/hotel/:slug`
+- `GET /api/wallet/me`
+- `GET /api/bookings/me`
+- `POST /api/bookings`
+- `POST /api/auth/password/register`
+- `POST /api/auth/password/register/confirm`
+- `POST /api/auth/password/login`
+- `POST /api/media/upload`
+- `GET /api/validation/health`
+- `POST /api/validation/validate/reservation-guest`
 
-Hotel Service:
+## Execucao Local
 
-- `GET /health`
-- `GET /hotels`
-- `GET /hotels/:slug`
-- `GET /cities`
-- `GET /states`
+Em terminais separados:
 
-Filtros aceitos em `GET /hotels`:
+```bash
+npm run dev:hotel-service:1
+npm run dev:hotel-service:2
+npm run dev:auth-service
+npm run dev:booking-service
+npm run dev:media-service
+npm run dev:geolocation-service
+npm run dev:validation-service
+npm run dev:gateway
+npm run dev
+```
 
-- `city`
-- `state`
-- `guests`
-- `priceMin`
-- `priceMax`
-- `amenities`, separados por virgula
-- `minRating`
-- `stars`, separados por virgula
+Para demonstrar load balancing, configure o gateway com:
 
-## Proximas Etapas
+```env
+HOTEL_SERVICE_URLS=http://localhost:4101,http://localhost:4102
+```
 
-1. Migrar a tela `/busca` para consumir `http://localhost:4100/api/hotels`. Concluido.
-2. Migrar a tela `/hotel/[slug]` para consumir `http://localhost:4100/api/hotels/:slug`. Concluido.
-3. Criar schema SQL com hoteis, quartos, imagens, usuarios, verificacoes de email e reservas. Concluido.
-4. Criar seed SQL inicial. Concluido.
-5. Atualizar `hotel-service` para consultar SQLite local. Concluido.
-6. Migrar o seed para conter todos os hoteis de `features/hotels/hotel-data.ts`.
-7. Criar `auth-service` com login, Google OAuth e envio de codigo por email para verificacao.
-8. Criar `geolocation-service` para converter endereco de hotel em latitude/longitude e calcular distancia.
-9. Criar `media-service` para upload no MinIO/S3 e geracao de thumbnails.
-10. Criar `booking-service` com disponibilidade e reserva real.
-11. Adicionar observabilidade, logs estruturados e health checks mais completos.
-12. Evoluir o `docker-compose` para Kubernetes quando os contratos estiverem estaveis.
+## Monitoramento
+
+O gateway expoe:
+
+```txt
+GET http://localhost:4100/metrics
+```
+
+As metricas incluem total de requisicoes, requisicoes bloqueadas por rate limit, rotas mais acessadas, upstreams usados, erros e tempo medio.
+
+Os logs sao estruturados em JSON no terminal, com metodo, rota, status, duracao e upstream escolhido.
+
+## Evolucao Para Hadoop
+
+Hadoop ou Spark nao entram no fluxo principal da aplicacao. Eles ficam como camada futura de analytics:
+
+```txt
+Logs de busca e reservas
+  |
+  v
+Arquivos JSON/CSV
+  |
+  v
+Hadoop/Spark
+  |
+  v
+Relatorios, rankings e recomendacoes
+```
+
+Essa separacao deixa o sistema atual simples para rodar e ainda abre caminho para Big Data no futuro.
