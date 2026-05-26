@@ -77,23 +77,55 @@ function openDatabase() {
     database = new DatabaseSync(databasePath)
     database.exec('PRAGMA foreign_keys = ON;')
     database.exec('PRAGMA journal_mode = WAL;')
+    database.exec('PRAGMA busy_timeout = 5000;')
   }
 
   return database
 }
 
-export function initializeSQLiteDatabase() {
-  const db = openDatabase()
+function waitForMs(ms) {
+  const buffer = new SharedArrayBuffer(4)
+  const view = new Int32Array(buffer)
+  Atomics.wait(view, 0, 0, ms)
+}
 
+function isDatabaseLocked(error) {
+  const message = error instanceof Error ? error.message : String(error)
+  return message.includes('database is locked')
+}
+
+export function initializeSQLiteDatabase() {
   if (!existsSync(schemaPath)) {
     throw new Error(`Schema SQL nao encontrado em ${schemaPath}`)
   }
 
-  prepareTranslatedSchema(db)
-  db.exec(readFileSync(schemaPath, 'utf8'))
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const db = openDatabase()
 
-  if (existsSync(seedPath)) {
-    db.exec(readFileSync(seedPath, 'utf8'))
+    try {
+      db.exec('BEGIN IMMEDIATE;')
+      prepareTranslatedSchema(db)
+      db.exec(readFileSync(schemaPath, 'utf8'))
+
+      if (existsSync(seedPath)) {
+        db.exec(readFileSync(seedPath, 'utf8'))
+      }
+
+      db.exec('COMMIT;')
+      return
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK;')
+      } catch {
+        // ignore rollback errors once the lock has been released
+      }
+
+      if (!isDatabaseLocked(error) || attempt === 4) {
+        throw error
+      }
+
+      waitForMs(250 * (attempt + 1))
+    }
   }
 }
 
@@ -107,4 +139,12 @@ export function querySQLite(sql, params = []) {
 
 export function getSQLite(sql, params = []) {
   return openDatabase().prepare(sql).get(...params)
+}
+
+export function runSQLite(sql, params = []) {
+  return openDatabase().prepare(sql).run(...params)
+}
+
+export function execSQLite(sql) {
+  return openDatabase().exec(sql)
 }

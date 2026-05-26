@@ -1,5 +1,6 @@
-import { getSQLiteDatabasePath, getSQLite, initializeSQLiteDatabase, querySQLite } from '../database/sqlite-client.js'
+import { execSQLite, getSQLiteDatabasePath, getSQLite, initializeSQLiteDatabase, querySQLite, runSQLite } from '../database/sqlite-client.js'
 import { dummyHotels } from '../data/dummy-hotels.js'
+import { fetchFakeHotels } from '../demo/fake-hotel-provider.js'
 
 initializeSQLiteDatabase()
 
@@ -273,4 +274,156 @@ export async function getUniqueCities() {
 export async function getUniqueStates() {
   const rows = querySQLite('SELECT DISTINCT estado FROM hoteis ORDER BY estado')
   return [...new Set([...rows.map((row) => row.estado), ...dummyHotels.map((hotel) => hotel.state)])].sort()
+}
+
+function saveGeneratedHotel(hotel) {
+  runSQLite(
+    `INSERT INTO hoteis (
+       id, nome, slug, descricao, descricao_curta, endereco, cidade, estado, pais, cep,
+       latitude, longitude, estrelas, nota, quantidade_avaliacoes, preco_inicial,
+       politica_check_in, politica_check_out, politica_cancelamento, politica_pets, politica_criancas,
+       contato_telefone, contato_email, contato_site
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       nome = excluded.nome,
+       slug = excluded.slug,
+       descricao = excluded.descricao,
+       descricao_curta = excluded.descricao_curta,
+       endereco = excluded.endereco,
+       cidade = excluded.cidade,
+       estado = excluded.estado,
+       pais = excluded.pais,
+       cep = excluded.cep,
+       latitude = excluded.latitude,
+       longitude = excluded.longitude,
+       estrelas = excluded.estrelas,
+       nota = excluded.nota,
+       quantidade_avaliacoes = excluded.quantidade_avaliacoes,
+       preco_inicial = excluded.preco_inicial,
+       politica_check_in = excluded.politica_check_in,
+       politica_check_out = excluded.politica_check_out,
+       politica_cancelamento = excluded.politica_cancelamento,
+       politica_pets = excluded.politica_pets,
+       politica_criancas = excluded.politica_criancas,
+       contato_telefone = excluded.contato_telefone,
+       contato_email = excluded.contato_email,
+       contato_site = excluded.contato_site,
+       atualizado_em = CURRENT_TIMESTAMP`,
+    [
+      hotel.id,
+      hotel.name,
+      hotel.slug,
+      hotel.description,
+      hotel.shortDescription,
+      hotel.address,
+      hotel.city,
+      hotel.state,
+      hotel.country,
+      hotel.zipCode,
+      hotel.latitude,
+      hotel.longitude,
+      hotel.stars,
+      hotel.rating,
+      hotel.reviewCount,
+      hotel.priceFrom,
+      hotel.policies.checkIn,
+      hotel.policies.checkOut,
+      hotel.policies.cancellation,
+      hotel.policies.pets,
+      hotel.policies.children,
+      hotel.contact.phone,
+      hotel.contact.email,
+      hotel.contact.website,
+    ]
+  )
+
+  hotel.images.forEach((image) => {
+    runSQLite(
+      `INSERT INTO imagens_hotel (id, hotel_id, url, texto_alternativo, categoria, ordem)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         hotel_id = excluded.hotel_id,
+         url = excluded.url,
+         texto_alternativo = excluded.texto_alternativo,
+         categoria = excluded.categoria,
+         ordem = excluded.ordem`,
+      [image.id, hotel.id, image.url, image.alt, image.category, image.order]
+    )
+  })
+
+  hotel.amenities.forEach((amenity) => {
+    runSQLite(
+      'INSERT OR IGNORE INTO hoteis_comodidades (hotel_id, comodidade_id) VALUES (?, ?)',
+      [hotel.id, amenity]
+    )
+  })
+
+  hotel.rooms.forEach((room) => {
+    runSQLite(
+      `INSERT INTO quartos (id, hotel_id, nome, descricao, categoria, preco, capacidade, tamanho, disponivel)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+       ON CONFLICT(id) DO UPDATE SET
+         hotel_id = excluded.hotel_id,
+         nome = excluded.nome,
+         descricao = excluded.descricao,
+         categoria = excluded.categoria,
+         preco = excluded.preco,
+         capacidade = excluded.capacidade,
+         tamanho = excluded.tamanho,
+         disponivel = excluded.disponivel,
+         atualizado_em = CURRENT_TIMESTAMP`,
+      [room.id, hotel.id, room.name, room.description, room.category, room.price, room.capacity, room.size]
+    )
+
+    room.images.forEach((imageUrl, index) => {
+      runSQLite(
+        `INSERT INTO imagens_quarto (id, quarto_id, url, texto_alternativo, ordem)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           quarto_id = excluded.quarto_id,
+           url = excluded.url,
+           texto_alternativo = excluded.texto_alternativo,
+           ordem = excluded.ordem`,
+        [`${room.id}-img-${index + 1}`, room.id, imageUrl, room.name, index + 1]
+      )
+    })
+
+    room.amenities.forEach((amenity) => {
+      runSQLite(
+        'INSERT OR IGNORE INTO quartos_comodidades (quarto_id, comodidade_id) VALUES (?, ?)',
+        [room.id, amenity]
+      )
+    })
+  })
+
+  hotel.reviews.forEach((review) => {
+    runSQLite(
+      `INSERT INTO avaliacoes (id, hotel_id, usuario_id, nome_usuario, nota, comentario, data_avaliacao, data_hospedagem)
+       VALUES (?, ?, NULL, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         hotel_id = excluded.hotel_id,
+         nome_usuario = excluded.nome_usuario,
+         nota = excluded.nota,
+         comentario = excluded.comentario,
+         data_avaliacao = excluded.data_avaliacao,
+         data_hospedagem = excluded.data_hospedagem`,
+      [review.id, hotel.id, review.userName, review.rating, review.comment, review.date, review.stayDate]
+    )
+  })
+}
+
+export async function generateFakeHotels(options = {}) {
+  const count = Math.max(1, Math.min(Number(options.count) || 5, 50))
+  const hotels = fetchFakeHotels({ ...options, count })
+
+  execSQLite('BEGIN;')
+  try {
+    hotels.forEach(saveGeneratedHotel)
+    execSQLite('COMMIT;')
+  } catch (error) {
+    execSQLite('ROLLBACK;')
+    throw error
+  }
+
+  return hydrateHotels(hotels.map((hotel) => getSQLite('SELECT * FROM hoteis WHERE id = ?', [hotel.id])))
 }

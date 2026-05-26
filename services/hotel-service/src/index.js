@@ -5,6 +5,7 @@ import {
   getHotelDataSource,
   getUniqueCities,
   getUniqueStates,
+  generateFakeHotels,
   parseHotelFilters,
   searchHotels,
 } from './repositories/hotel-repository.js'
@@ -14,16 +15,26 @@ const serviceName = process.env.SERVICE_NAME || 'hotel-service'
 
 function sendJson(res, status, payload) {
   res.writeHead(status, {
-    'content-type': 'application/json; charset=utf-8',
-    'access-control-allow-origin': '*',
-    'access-control-allow-methods': 'GET,OPTIONS',
-    'access-control-allow-headers': 'content-type,authorization',
+      'content-type': 'application/json; charset=utf-8',
+      'access-control-allow-origin': '*',
+      'access-control-allow-methods': 'GET,POST,OPTIONS',
+      'access-control-allow-headers': 'content-type,authorization',
   })
   res.end(JSON.stringify(payload))
 }
 
 function sendError(res, status, error, message) {
   sendJson(res, status, { error, message })
+}
+
+async function readJsonBody(req) {
+  const chunks = []
+  for await (const chunk of req) {
+    chunks.push(chunk)
+  }
+
+  const rawBody = Buffer.concat(chunks).toString('utf8').trim()
+  return rawBody ? JSON.parse(rawBody) : {}
 }
 
 const server = createServer(async (req, res) => {
@@ -34,17 +45,24 @@ const server = createServer(async (req, res) => {
     return
   }
 
-  if (req.method !== 'GET') {
-    sendJson(res, 405, { error: 'method_not_allowed' })
-    return
-  }
-
   if (url.pathname === '/health') {
     sendJson(res, 200, { status: 'ok', service: serviceName, port, dataSource: getHotelDataSource(), databasePath: getHotelDatabasePath() })
     return
   }
 
   try {
+    if (req.method === 'POST' && url.pathname === '/hotels/generate') {
+      const body = await readJsonBody(req)
+      const data = await generateFakeHotels(body)
+      sendJson(res, 201, { data, meta: { total: data.length, source: serviceName, dataSource: getHotelDataSource() } })
+      return
+    }
+
+    if (req.method !== 'GET') {
+      sendJson(res, 405, { error: 'method_not_allowed' })
+      return
+    }
+
     if (url.pathname === '/hotels') {
       const data = await searchHotels(parseHotelFilters(url.searchParams))
       sendJson(res, 200, { data, meta: { total: data.length, source: serviceName, dataSource: getHotelDataSource() } })

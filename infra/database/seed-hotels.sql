@@ -20,7 +20,7 @@ INSERT OR IGNORE INTO comodidades (id, rotulo) VALUES
   ('laundry', 'Lavanderia'),
   ('business-center', 'Centro de Negócios');
 
-INSERT OR REPLACE INTO hoteis (
+INSERT INTO hoteis (
   id, nome, slug, descricao, descricao_curta, endereco, cidade, estado, pais, cep,
   latitude, longitude, estrelas, nota, quantidade_avaliacoes, preco_inicial,
   politica_check_in, politica_check_out, politica_cancelamento, politica_pets, politica_criancas,
@@ -49,22 +49,68 @@ INSERT OR REPLACE INTO hoteis (
     -12.5761, -38.0019, 5, 4.9, 2156, 1650,
     '15:00', '12:00', 'Cancelamento gratuito até 7 dias antes do check-in', 'Não aceitamos pets', 'Crianças até 12 anos não pagam',
     '(71) 3676-8900', 'reservas@resortpraiadoforte.com.br', 'www.resortpraiadoforte.com.br'
-  );
+  )
+ON CONFLICT(id) DO UPDATE SET
+  nome = excluded.nome,
+  slug = excluded.slug,
+  descricao = excluded.descricao,
+  descricao_curta = excluded.descricao_curta,
+  endereco = excluded.endereco,
+  cidade = excluded.cidade,
+  estado = excluded.estado,
+  pais = excluded.pais,
+  cep = excluded.cep,
+  latitude = excluded.latitude,
+  longitude = excluded.longitude,
+  estrelas = excluded.estrelas,
+  nota = excluded.nota,
+  quantidade_avaliacoes = excluded.quantidade_avaliacoes,
+  preco_inicial = excluded.preco_inicial,
+  politica_check_in = excluded.politica_check_in,
+  politica_check_out = excluded.politica_check_out,
+  politica_cancelamento = excluded.politica_cancelamento,
+  politica_pets = excluded.politica_pets,
+  politica_criancas = excluded.politica_criancas,
+  contato_telefone = excluded.contato_telefone,
+  contato_email = excluded.contato_email,
+  contato_site = excluded.contato_site,
+  atualizado_em = CURRENT_TIMESTAMP;
 
-INSERT OR REPLACE INTO imagens_hotel (id, hotel_id, url, texto_alternativo, categoria, ordem) VALUES
+INSERT INTO imagens_hotel (id, hotel_id, url, texto_alternativo, categoria, ordem) VALUES
   ('hi-1-1', '1', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800', 'Fachada do hotel', 'exterior', 1),
   ('hi-2-1', '2', 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800', 'Pousada vista externa', 'exterior', 1),
-  ('hi-3-1', '3', 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800', 'Vista aérea do resort', 'exterior', 1);
+  ('hi-3-1', '3', 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800', 'Vista aérea do resort', 'exterior', 1)
+ON CONFLICT(id) DO UPDATE SET
+  hotel_id = excluded.hotel_id,
+  url = excluded.url,
+  texto_alternativo = excluded.texto_alternativo,
+  categoria = excluded.categoria,
+  ordem = excluded.ordem;
 
-INSERT OR REPLACE INTO quartos (id, hotel_id, nome, descricao, categoria, preco, capacidade, tamanho, disponivel) VALUES
+INSERT INTO quartos (id, hotel_id, nome, descricao, categoria, preco, capacidade, tamanho, disponivel) VALUES
   ('1-1', '1', 'Quarto Standard', 'Quarto com vista para a cidade', 'economic', 890, 2, 28, 1),
   ('2-1', '2', 'Quarto Aconchego', 'Quarto simples e confortável', 'economic', 320, 2, 20, 1),
-  ('3-1', '3', 'Apartamento Garden', 'Apartamento térreo com acesso ao jardim', 'standard', 1650, 3, 40, 1);
+  ('3-1', '3', 'Apartamento Garden', 'Apartamento térreo com acesso ao jardim', 'standard', 1650, 3, 40, 1)
+ON CONFLICT(id) DO UPDATE SET
+  hotel_id = excluded.hotel_id,
+  nome = excluded.nome,
+  descricao = excluded.descricao,
+  categoria = excluded.categoria,
+  preco = excluded.preco,
+  capacidade = excluded.capacidade,
+  tamanho = excluded.tamanho,
+  disponivel = excluded.disponivel,
+  atualizado_em = CURRENT_TIMESTAMP;
 
-INSERT OR REPLACE INTO imagens_quarto (id, quarto_id, url, texto_alternativo, ordem) VALUES
+INSERT INTO imagens_quarto (id, quarto_id, url, texto_alternativo, ordem) VALUES
   ('ri-1-1', '1-1', 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800', 'Quarto Standard', 1),
   ('ri-2-1', '2-1', 'https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=800', 'Quarto Aconchego', 1),
-  ('ri-3-1', '3-1', 'https://images.unsplash.com/photo-1598928506311-c55e085d3c76?w=800', 'Apartamento Garden', 1);
+  ('ri-3-1', '3-1', 'https://images.unsplash.com/photo-1598928506311-c55e085d3c76?w=800', 'Apartamento Garden', 1)
+ON CONFLICT(id) DO UPDATE SET
+  quarto_id = excluded.quarto_id,
+  url = excluded.url,
+  texto_alternativo = excluded.texto_alternativo,
+  ordem = excluded.ordem;
 
 INSERT OR IGNORE INTO hoteis_comodidades (hotel_id, comodidade_id) VALUES
   ('1', 'wifi'), ('1', 'pool'), ('1', 'gym'), ('1', 'spa'), ('1', 'restaurant'), ('1', 'bar'), ('1', 'room-service'), ('1', 'parking'), ('1', 'air-conditioning'), ('1', 'breakfast'), ('1', 'beach-access'),
@@ -76,5 +122,13 @@ INSERT OR IGNORE INTO quartos_comodidades (quarto_id, comodidade_id) VALUES
   ('2-1', 'wifi'), ('2-1', 'air-conditioning'),
   ('3-1', 'wifi'), ('3-1', 'air-conditioning'), ('3-1', 'breakfast');
 
-INSERT OR REPLACE INTO avaliacoes (id, hotel_id, usuario_id, nome_usuario, nota, comentario, data_avaliacao, data_hospedagem) VALUES
-  ('r1', '1', NULL, 'Maria Silva', 5, 'Experiência incrível e atendimento muito cuidadoso.', '2024-01-15', '2024-01-10');
+INSERT INTO avaliacoes (id, hotel_id, usuario_id, nome_usuario, nota, comentario, data_avaliacao, data_hospedagem) VALUES
+  ('r1', '1', NULL, 'Maria Silva', 5, 'Experiência incrível e atendimento muito cuidadoso.', '2024-01-15', '2024-01-10')
+ON CONFLICT(id) DO UPDATE SET
+  hotel_id = excluded.hotel_id,
+  usuario_id = excluded.usuario_id,
+  nome_usuario = excluded.nome_usuario,
+  nota = excluded.nota,
+  comentario = excluded.comentario,
+  data_avaliacao = excluded.data_avaliacao,
+  data_hospedagem = excluded.data_hospedagem;

@@ -4,21 +4,27 @@ Sistema academico de hoteis com frontend Next.js, API Gateway, microsservicos No
 
 ## Arquitetura
 
-```txt
-Frontend Next.js
-  -> API Gateway
-    -> Hotel Service cluster
-    -> Auth Service
-    -> Booking/Wallet Service
-    -> Media Service
-    -> Geolocation Service
-    -> Validation Service Python
-    -> SQLite
-```
+A arquitetura detalhada do sistema fica em [docs/architecture.md](docs/architecture.md).
 
 ## Como Rodar
 
-Abra terminais separados:
+### Fluxo recomendado
+
+Use o comando unico para subir todos os servicos locais:
+
+```bash
+npm run dev:all
+```
+
+Depois acesse:
+
+```txt
+http://localhost:3000
+```
+
+### Fluxo manual
+
+Se quiser rodar servicos individualmente:
 
 ```bash
 npm run dev:hotel-service:1
@@ -32,20 +38,43 @@ npm run dev:gateway
 npm run dev
 ```
 
-Depois acesse:
-
-```txt
-http://localhost:3000
-```
-
 ## Endpoints Uteis
 
 ```txt
 http://localhost:4100/health
 http://localhost:4100/metrics
 http://localhost:4100/api/hotels
+POST http://localhost:4100/api/hotels/generate
 http://localhost:4205/health
 ```
+
+## Gerar Hoteis Automaticamente
+
+Com o API Gateway e o Hotel Service rodando, gere hoteis falsos completos no SQLite:
+
+```bash
+curl -X POST http://localhost:4100/api/hotels/generate \
+  -H "Content-Type: application/json" \
+  -d "{\"count\": 5}"
+```
+
+Tambem e possivel limitar por cidade ou estado:
+
+```bash
+curl -X POST http://localhost:4100/api/hotels/generate \
+  -H "Content-Type: application/json" \
+  -d "{\"count\": 3, \"state\": \"RJ\"}"
+```
+
+Os hoteis gerados sao persistidos no banco local e aparecem automaticamente no site pela rota `/api/hotels`.
+
+## Seed e dados de demonstracao
+
+Os dados falsos de hotel ficaram isolados em:
+
+- `services/hotel-service/src/demo/fake-hotel-provider.js`
+
+Esse local foi criado para separar a logica de demonstracao da logica real do servico, sem alterar o comportamento atual.
 
 ## Banco
 
@@ -57,6 +86,33 @@ infra/database/seed-hotels.sql
 ```
 
 O arquivo `hoteis.db` e gerado localmente a partir desses SQLs.
+
+## Padrões do projeto
+
+### 1. Nomes
+
+- Arquivos e pastas em `kebab-case`
+- Variaveis e funcoes em `camelCase`
+- Componentes React em `PascalCase`
+- Servicos e ambientes com nomes claros e consistentes
+
+### 2. Variaveis de ambiente
+
+- Variaveis sempre em `UPPER_SNAKE_CASE`
+- Nomes com contexto do servico quando aplicavel
+- Exemplo: `HOTEL_SERVICE_URLS`, `PORT`, `SERVICE_NAME`, `EMAIL_PROVIDER`
+
+### 3. Logs
+
+- Logs em formato JSON estruturado
+- Evitar mensagens soltas sem contexto
+- Preferir dados consistentes como `service`, `event`, `status`, `path` e `durationMs`
+
+### 4. Contrato frontend e gateway
+
+- O frontend deve consumir apenas o gateway em `/api/*`
+- O gateway e a porta de entrada unica da API
+- Os microsservicos continuam internos e nao devem ser chamados diretamente pelo frontend
 
 ## Observacoes
 

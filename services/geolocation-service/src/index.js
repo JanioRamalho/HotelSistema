@@ -12,13 +12,52 @@ const schemaPath = join(__dirname, '..', '..', '..', 'infra', 'database', 'schem
 const seedPath = join(__dirname, '..', '..', '..', 'infra', 'database', 'seed-hotels.sql')
 const db = new DatabaseSync(databasePath)
 
-db.exec('PRAGMA foreign_keys = ON;')
-if (existsSync(schemaPath)) {
-  db.exec(readFileSync(schemaPath, 'utf8'))
+function waitForMs(ms) {
+  const buffer = new SharedArrayBuffer(4)
+  const view = new Int32Array(buffer)
+  Atomics.wait(view, 0, 0, ms)
 }
-if (existsSync(seedPath)) {
-  db.exec(readFileSync(seedPath, 'utf8'))
+
+function isDatabaseLocked(error) {
+  const message = error instanceof Error ? error.message : String(error)
+  return message.includes('database is locked')
 }
+
+function initializeDatabase() {
+  db.exec('PRAGMA foreign_keys = ON;')
+  db.exec('PRAGMA busy_timeout = 5000;')
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      db.exec('BEGIN IMMEDIATE;')
+
+      if (existsSync(schemaPath)) {
+        db.exec(readFileSync(schemaPath, 'utf8'))
+      }
+
+      if (existsSync(seedPath)) {
+        db.exec(readFileSync(seedPath, 'utf8'))
+      }
+
+      db.exec('COMMIT;')
+      return
+    } catch (error) {
+      try {
+        db.exec('ROLLBACK;')
+      } catch {
+        // ignore rollback errors
+      }
+
+      if (!isDatabaseLocked(error) || attempt === 4) {
+        throw error
+      }
+
+      waitForMs(250 * (attempt + 1))
+    }
+  }
+}
+
+initializeDatabase()
 
 function sendJson(res, status, payload) {
   res.writeHead(status, {

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:all": "node scripts/dev-all.js",
     "dev:gateway": "npm --prefix services/api-gateway run dev",
     "dev:hotel-service": "npm --prefix services/hotel-service run dev",
     "dev:hotel-service:1": "npm --prefix services/hotel-service run dev:instance1",
