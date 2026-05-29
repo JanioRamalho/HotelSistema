@@ -120,7 +120,7 @@ export function PopularDestinations() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {hotels.slice(0, 4).map((hotel) => (
+          {hotels.slice(0, 3).map((hotel) => (
             <HotelCard key={hotel.id} hotel={hotel} />
           ))}
         </div>

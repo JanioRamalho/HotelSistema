@@ -3,10 +3,8 @@ const net = require('node:net')
 
 const commands = [
   { name: 'hotel-service-1', command: 'npm', args: ['run', 'dev:hotel-service:1'], port: 4101 },
-  { name: 'hotel-service-2', command: 'npm', args: ['run', 'dev:hotel-service:2'], port: 4102 },
   { name: 'auth-service', command: 'npm', args: ['run', 'dev:auth-service'], port: 4201 },
   { name: 'booking-service', command: 'npm', args: ['run', 'dev:booking-service'], port: 4202 },
-  { name: 'media-service', command: 'npm', args: ['run', 'dev:media-service'], port: 4203 },
   { name: 'geolocation-service', command: 'npm', args: ['run', 'dev:geolocation-service'], port: 4204 },
   { name: 'validation-service', command: 'npm', args: ['run', 'dev:validation-service'], port: 4205 },
   { name: 'api-gateway', command: 'npm', args: ['run', 'dev:gateway'], port: 4100 },

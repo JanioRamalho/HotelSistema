@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AlertCircle, ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react'
@@ -11,7 +11,7 @@ import { loginWithPassword } from '@/features/hotels/hotel-experience-api'
 
 const sessionStorageKey = 'hotel-sistema-session-user'
 
-export default function LoginPage() {
+function LoginPageContent() {
   // Aba de autenticacao: esta tela concentra login por e-mail/senha.
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -162,13 +162,12 @@ export default function LoginPage() {
           <div className="mt-8 space-y-5">
             {message && (
               <div
-                className={`flex items-start gap-2 rounded-lg p-3 text-sm ${
-                  status === 'success'
+                className={`flex items-start gap-2 rounded-lg p-3 text-sm ${status === 'success'
                     ? 'bg-green-50 text-green-700'
                     : status === 'error'
                       ? 'bg-destructive/10 text-destructive'
                       : 'bg-muted text-muted-foreground'
-                }`}
+                  }`}
               >
                 {status === 'error' ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
                 <span>{message}</span>
@@ -185,5 +184,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Carregando login...</div>}>
+      <LoginPageContent />
+    </Suspense>
   )
 }

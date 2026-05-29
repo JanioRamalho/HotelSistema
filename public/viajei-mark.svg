@@ -1,0 +1,20 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Viajei.com</title>
+  <desc id="desc">Simbolo da Viajei.com com casa de hospedagem.</desc>
+  <defs>
+    <linearGradient id="mark-bg" x1="28" y1="24" x2="151" y2="158" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#16B8A6"/>
+      <stop offset="1" stop-color="#2474C9"/>
+    </linearGradient>
+    <linearGradient id="door" x1="90" y1="96" x2="90" y2="139" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE2A8"/>
+      <stop offset="1" stop-color="#F7B955"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="42" fill="url(#mark-bg)"/>
+  <path d="M47 90.5L90 50.3L133 90.5" stroke="white" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M60.8 87.2V128.3C60.8 134.4 65.7 139.3 71.8 139.3H108.2C114.3 139.3 119.2 134.4 119.2 128.3V87.2" stroke="white" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M89.8 101.7C83.9 101.7 79.1 106.5 79.1 112.4V139.3H100.5V112.4C100.5 106.5 95.7 101.7 89.8 101.7Z" fill="url(#door)"/>
+  <path d="M128.8 48.7C136.8 54 142 62.5 143.2 72" stroke="#FFE2A8" stroke-width="10" stroke-linecap="round"/>
+  <path d="M37 145.5C58.3 163 93.1 166.1 121.6 153.1" stroke="white" stroke-opacity="0.9" stroke-width="10" stroke-linecap="round"/>
+</svg>

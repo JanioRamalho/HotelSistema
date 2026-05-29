@@ -1,6 +1,7 @@
 import { Amenity, Hotel } from './hotel-types'
 
 const apiGatewayUrl = process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:4100'
+const defaultTimeoutMs = 8_000
 
 type FetchHotelsParams = {
   city?: string
@@ -34,6 +35,30 @@ function appendParam(params: URLSearchParams, key: string, value: string | numbe
   }
 }
 
+function createTimeoutSignal(signal?: AbortSignal, timeoutMs = defaultTimeoutMs) {
+  const controller = new AbortController()
+  const timeout = globalThis.setTimeout(() => controller.abort(), timeoutMs)
+
+  if (signal?.aborted) {
+    controller.abort()
+  } else {
+    signal?.addEventListener('abort', () => controller.abort(), { once: true })
+  }
+
+  return {
+    signal: controller.signal,
+    clear: () => globalThis.clearTimeout(timeout),
+  }
+}
+
+function getFetchErrorMessage(error: unknown) {
+  if (error instanceof DOMException && error.name === 'AbortError') {
+    return 'Tempo esgotado ao consultar o API Gateway.'
+  }
+
+  return error instanceof Error ? error.message : 'Nao foi possivel consultar o API Gateway.'
+}
+
 export async function fetchHotels(params: FetchHotelsParams, signal?: AbortSignal): Promise<HotelListResponse> {
   const searchParams = new URLSearchParams()
 
@@ -52,31 +77,50 @@ export async function fetchHotels(params: FetchHotelsParams, signal?: AbortSigna
     searchParams.set('stars', params.stars.join(','))
   }
 
-  const response = await fetch(`${apiGatewayUrl}/api/hotels?${searchParams.toString()}`, {
-    signal,
-    headers: {
-      accept: 'application/json',
-    },
-  })
+  const timeout = createTimeoutSignal(signal)
 
-  if (!response.ok) {
-    throw new Error(`Gateway respondeu com status ${response.status}`)
+  try {
+    const response = await fetch(`${apiGatewayUrl}/api/hotels/unique-images?${searchParams.toString()}`, {
+      signal: timeout.signal,
+      headers: {
+        accept: 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Gateway respondeu com status ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    if (signal?.aborted) throw error
+    throw new Error(getFetchErrorMessage(error))
+  } finally {
+    timeout.clear()
   }
-
-  return response.json()
 }
 
 export async function fetchHotelBySlug(slug: string, signal?: AbortSignal): Promise<HotelDetailResponse> {
-  const response = await fetch(`${apiGatewayUrl}/api/hotels/${encodeURIComponent(slug)}`, {
-    signal,
-    headers: {
-      accept: 'application/json',
-    },
-  })
+  const timeout = createTimeoutSignal(signal)
 
-  if (!response.ok) {
-    throw new Error(`Gateway respondeu com status ${response.status}`)
+  try {
+    const response = await fetch(`${apiGatewayUrl}/api/hotels/${encodeURIComponent(slug)}`, {
+      signal: timeout.signal,
+      headers: {
+        accept: 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Gateway respondeu com status ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    if (signal?.aborted) throw error
+    throw new Error(getFetchErrorMessage(error))
+  } finally {
+    timeout.clear()
   }
-
-  return response.json()
 }
+

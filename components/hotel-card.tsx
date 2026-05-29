@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 
 interface HotelCardProps {
   hotel: Hotel
+  promoDiscount?: number
 }
 
 const amenityIcons: Partial<Record<Amenity, React.ReactNode>> = {
@@ -20,16 +21,20 @@ const amenityIcons: Partial<Record<Amenity, React.ReactNode>> = {
   'parking': <Car className="h-3.5 w-3.5" />,
 }
 
-export function HotelCard({ hotel }: HotelCardProps) {
+export function HotelCard({ hotel, promoDiscount }: HotelCardProps) {
   const displayedAmenities = hotel.amenities.slice(0, 4)
+  const selectedImage = hotel.images[0]
+  const hasPromotion = typeof promoDiscount === 'number' && promoDiscount > 0
+  const originalPrice = hotel.priceFrom
+  const promoPrice = hasPromotion ? originalPrice * (1 - promoDiscount / 100) : originalPrice
 
   return (
     <article className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:shadow-lg">
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <Image
-          src={hotel.images[0]?.url || '/placeholder.jpg'}
-          alt={hotel.images[0]?.alt || hotel.name}
+          src={selectedImage?.url || '/placeholder.jpg'}
+          alt={selectedImage?.alt || hotel.name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -101,11 +106,23 @@ export function HotelCard({ hotel }: HotelCardProps) {
         {/* Price & CTA */}
         <div className="flex items-center justify-between border-t border-border pt-4">
           <div>
-            <p className="text-xs text-muted-foreground">A partir de</p>
-            <p className="text-lg font-bold text-foreground">
-              R$ {hotel.priceFrom.toLocaleString('pt-BR')}
-              <span className="text-sm font-normal text-muted-foreground">/noite</span>
-            </p>
+            <p className="text-xs text-muted-foreground">{hasPromotion ? 'Promoção' : 'A partir de'}</p>
+            {hasPromotion ? (
+              <>
+                <p className="text-sm text-muted-foreground line-through">
+                  R$ {originalPrice.toLocaleString('pt-BR')}
+                </p>
+                <p className="text-lg font-bold text-foreground">
+                  R$ {promoPrice.toLocaleString('pt-BR')}
+                  <span className="text-sm font-normal text-muted-foreground">/noite</span>
+                </p>
+              </>
+            ) : (
+              <p className="text-lg font-bold text-foreground">
+                R$ {originalPrice.toLocaleString('pt-BR')}
+                <span className="text-sm font-normal text-muted-foreground">/noite</span>
+              </p>
+            )}
           </div>
           <Button asChild size="sm">
             <Link href={`/hotel/${hotel.slug}`}>

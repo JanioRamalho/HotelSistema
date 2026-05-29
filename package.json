@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "dev:all": "node scripts/dev-all.js",
     "dev:gateway": "npm --prefix services/api-gateway run dev",
     "dev:hotel-service": "npm --prefix services/hotel-service run dev",
@@ -16,7 +16,8 @@
     "dev:validation-service": "python services/validation-service/src/server.py",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "npm run typecheck",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

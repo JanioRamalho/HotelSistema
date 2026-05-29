@@ -1,0 +1,15 @@
+<svg width="260" height="120" viewBox="0 0 260 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-labelledby="title desc" role="img">
+  <title id="title">Viajei.com</title>
+  <desc id="desc">Logo da Viajei.com: círculo aqua green com ondas e tipografia moderna.</desc>
+  <g>
+    <!-- Símbolo circular com ondas -->
+    <circle cx="70" cy="50" r="36" stroke="#19C8B9" stroke-width="4.5" fill="none" />
+    <path d="M44 60 Q60 50 70 60 Q80 70 96 60" stroke="#19C8B9" stroke-width="3.2" fill="none"/>
+    <path d="M48 50 Q60 44 70 50 Q80 56 92 50" stroke="#19C8B9" stroke-width="2.2" fill="none"/>
+  </g>
+  <g>
+    <!-- Tipografia -->
+    <text x="120" y="68" font-family="Inter, Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#19C8B9">viajei</text>
+    <text x="245" y="68" font-family="Inter, Arial, Helvetica, sans-serif" font-size="44" font-weight="400" fill="#374151" text-anchor="end">.com</text>
+  </g>
+</svg>

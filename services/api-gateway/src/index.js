@@ -7,7 +7,7 @@ const rateLimitMax = Number(process.env.RATE_LIMIT_MAX || 100)
 const upstreamTimeoutMs = Number(process.env.UPSTREAM_TIMEOUT_MS || 15_000)
 
 const upstreams = {
-  hotelService: parseUrls(process.env.HOTEL_SERVICE_URLS || 'http://localhost:4101,http://localhost:4102'),
+  hotelService: parseUrls(process.env.HOTEL_SERVICE_URLS || 'http://localhost:4101'),
   authService: parseUrls(process.env.AUTH_SERVICE_URLS || 'http://localhost:4201'),
   bookingService: parseUrls(process.env.BOOKING_SERVICE_URLS || 'http://localhost:4202'),
   mediaService: parseUrls(process.env.MEDIA_SERVICE_URLS || 'http://localhost:4203'),

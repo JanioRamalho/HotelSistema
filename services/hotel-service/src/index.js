@@ -69,6 +69,12 @@ const server = createServer(async (req, res) => {
       return
     }
 
+    if (url.pathname === '/hotels/unique-images') {
+      const data = await searchHotels(parseHotelFilters(url.searchParams))
+      sendJson(res, 200, { data, meta: { total: data.length, source: serviceName, dataSource: getHotelDataSource(), imageStrategy: 'global-unique-pool' } })
+      return
+    }
+
     if (url.pathname.startsWith('/hotels/')) {
       const slug = decodeURIComponent(url.pathname.replace('/hotels/', ''))
       const hotel = await getHotelBySlug(slug)

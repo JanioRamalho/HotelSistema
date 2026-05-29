@@ -4,30 +4,27 @@ import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, ShieldCheck, Lock, C
 const footerLinks = {
   navegacao: [
     { label: 'Buscar Hotéis', href: '/busca' },
-    { label: 'Destinos Populares', href: '#destinos' },
-    { label: 'Ofertas Especiais', href: '#ofertas' },
-    { label: 'Minha Conta', href: '#' },
-    { label: 'Minhas Reservas', href: '#' },
+    { label: 'Cadastrar', href: '/cadastro' },
+    { label: 'Entrar', href: '/login' },
+    { label: 'Destinos Populares', href: '/busca' },
   ],
   suporte: [
-    { label: 'Central de Ajuda', href: '#' },
-    { label: 'Cancelamento de Reservas', href: '#' },
-    { label: 'Formas de Pagamento', href: '#' },
-    { label: 'Acessibilidade', href: '#' },
-    { label: 'Trabalhe Conosco', href: '#' },
+    { label: 'Central de Ajuda', href: '/ajuda' },
+    { label: 'Cancelamento de Reservas', href: '/cancelamento' },
+    { label: 'Formas de Pagamento', href: '/contato' },
+    { label: 'Contato', href: '/contato' },
   ],
   legal: [
-    { label: 'Termos de Uso', href: '#' },
-    { label: 'Política de Privacidade', href: '#' },
-    { label: 'Política de Cookies', href: '#' },
-    { label: 'LGPD', href: '#' },
+    { label: 'Termos de Uso', href: '/termos' },
+    { label: 'Política de Privacidade', href: '/privacidade' },
+    { label: 'Política de Cookies', href: '/cookies' },
   ],
 }
 
 const socialLinks = [
-  { icon: Facebook, href: '#', label: 'Facebook' },
-  { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Twitter, href: '#', label: 'Twitter' },
+  { icon: Facebook, href: '/contato', label: 'Facebook' },
+  { icon: Instagram, href: '/contato', label: 'Instagram' },
+  { icon: Twitter, href: '/contato', label: 'Twitter' },
 ]
 
 export function Footer() {
@@ -37,11 +34,8 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="mb-4 flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                <span className="text-lg font-bold text-primary-foreground">S</span>
-              </div>
-              <span className="text-xl font-bold text-foreground">Viajei</span>
+            <Link href="/" className="mb-4 flex items-center gap-3" aria-label="Viajei.com">
+              <span className="text-xl font-black tracking-tight text-foreground md:text-2xl">Viajei.com</span>
             </Link>
             <p className="mb-4 max-w-sm text-sm text-muted-foreground text-pretty leading-relaxed">
               Sua plataforma de reservas de hotéis em todo o Brasil. Compare preços, veja avaliações e reserve com segurança.
@@ -112,7 +106,7 @@ export function Footer() {
             <div className="mt-6 space-y-2">
               <p className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                contato@stayhub.com.br
+                contato@viajei.com
               </p>
               <p className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4" />

@@ -1,6 +1,7 @@
 import { execSQLite, getSQLiteDatabasePath, getSQLite, initializeSQLiteDatabase, querySQLite, runSQLite } from '../database/sqlite-client.js'
 import { dummyHotels } from '../data/dummy-hotels.js'
 import { fetchFakeHotels } from '../demo/fake-hotel-provider.js'
+import { uniqueHotelImages } from '../data/unique-hotel-images.js'
 
 initializeSQLiteDatabase()
 
@@ -61,6 +62,47 @@ function mapHotelRow(row) {
       ...(row.contato_site ? { website: row.contato_site } : {}),
     },
   }
+}
+
+function getKnownHotelSlugs() {
+  const databaseSlugs = querySQLite(
+    `SELECT slug
+     FROM hoteis
+     ORDER BY nota DESC, quantidade_avaliacoes DESC, nome ASC`
+  ).map((row) => row.slug)
+  const seen = new Set(databaseSlugs)
+  const dummySlugs = searchDummyHotels({ amenities: [], stars: [] })
+    .filter((hotel) => !seen.has(hotel.slug))
+    .map((hotel) => hotel.slug)
+
+  return [...databaseSlugs, ...dummySlugs]
+}
+
+function assignUniqueImages(hotels) {
+  const knownSlugs = getKnownHotelSlugs()
+
+  return hotels.map((hotel) => {
+    const fallbackImages = Array.isArray(hotel.images) ? hotel.images : []
+    const slugIndex = knownSlugs.indexOf(hotel.slug)
+    const imageIndex = slugIndex >= 0 ? slugIndex % uniqueHotelImages.length : 0
+    const candidate = uniqueHotelImages[imageIndex] || fallbackImages[0]
+
+    if (!candidate) {
+      return hotel
+    }
+
+    return {
+      ...hotel,
+      images: [
+        {
+          url: candidate.url,
+          alt: candidate.alt || hotel.name,
+          category: candidate.category || 'exterior',
+        },
+        ...fallbackImages.slice(1),
+      ],
+    }
+  })
 }
 
 async function hydrateHotels(hotelRows) {
@@ -246,13 +288,21 @@ export async function searchHotels(filters) {
   )
 
   const databaseHotels = await hydrateHotels(rows)
-  return mergeHotels(databaseHotels, searchDummyHotels(filters))
+  const mergedHotels = mergeHotels(databaseHotels, searchDummyHotels(filters))
+
+  return assignUniqueImages(mergedHotels)
 }
 
 export async function getHotelBySlug(slug) {
   const hotel = getSQLite('SELECT * FROM hoteis WHERE slug = ? LIMIT 1', [slug])
   const hotels = await hydrateHotels(hotel ? [hotel] : [])
-  return hotels[0] || dummyHotels.find((item) => item.slug === slug)
+  const result = hotels[0] || dummyHotels.find((item) => item.slug === slug)
+
+  if (!result) {
+    return result
+  }
+
+  return assignUniqueImages([result])[0]
 }
 
 export async function getUniqueCities() {

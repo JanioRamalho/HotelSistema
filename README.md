@@ -2,6 +2,13 @@
 
 Sistema academico de hoteis com frontend Next.js, API Gateway, microsservicos Node.js, validacao em Python e banco SQLite local.
 
+O fluxo principal esta organizado para manter estavel:
+
+- pagina inicial, busca e detalhe de hoteis;
+- cadastro/login;
+- carteira e reserva demo;
+- imagens de hoteis com atribuicao exclusiva e previsivel.
+
 ## Arquitetura
 
 A arquitetura detalhada do sistema fica em [docs/architecture.md](docs/architecture.md).
@@ -10,7 +17,7 @@ A arquitetura detalhada do sistema fica em [docs/architecture.md](docs/architect
 
 ### Fluxo recomendado
 
-Use o comando unico para subir todos os servicos locais:
+Use o comando unico para subir os servicos necessarios ao site:
 
 ```bash
 npm run dev:all
@@ -22,21 +29,35 @@ Depois acesse:
 http://localhost:3000
 ```
 
+Para conferir se o projeto esta saudavel:
+
+```bash
+npm run lint
+npm run build
+```
+
 ### Fluxo manual
 
 Se quiser rodar servicos individualmente:
 
 ```bash
 npm run dev:hotel-service:1
-npm run dev:hotel-service:2
 npm run dev:auth-service
 npm run dev:booking-service
-npm run dev:media-service
 npm run dev:geolocation-service
 npm run dev:validation-service
 npm run dev:gateway
 npm run dev
 ```
+
+Servicos opcionais que nao entram no fluxo visual principal:
+
+```bash
+npm run dev:hotel-service:2
+npm run dev:media-service
+```
+
+Use a segunda instancia do hotel-service apenas se quiser testar balanceamento via `HOTEL_SERVICE_URLS`.
 
 ## Endpoints Uteis
 
@@ -44,6 +65,7 @@ npm run dev
 http://localhost:4100/health
 http://localhost:4100/metrics
 http://localhost:4100/api/hotels
+http://localhost:4100/api/hotels/resort-praia-do-forte
 POST http://localhost:4100/api/hotels/generate
 http://localhost:4205/health
 ```
@@ -67,6 +89,14 @@ curl -X POST http://localhost:4100/api/hotels/generate \
 ```
 
 Os hoteis gerados sao persistidos no banco local e aparecem automaticamente no site pela rota `/api/hotels`.
+
+As imagens principais sao atribuidas pelo `hotel-service` a partir de um conjunto unico versionado em:
+
+```txt
+services/hotel-service/src/data/unique-hotel-images.js
+```
+
+Essa regra evita que o frontend precise improvisar imagens e mantem cada hotel com uma imagem principal previsivel.
 
 ## Seed e dados de demonstracao
 
@@ -116,9 +146,10 @@ O arquivo `hoteis.db` e gerado localmente a partir desses SQLs.
 
 ## Observacoes
 
-- O `hotel-service` combina SQLite com uma Dummy API interna para popular varios estados e cidades.
+- O `hotel-service` combina SQLite com dados demo internos para popular varios estados e cidades.
 - O `validation-service` e feito em Python e valida CPF, CEP, telefone, e-mail e data de nascimento.
 - O envio real de e-mail depende das variaveis SMTP ou Resend configuradas no `.env`.
+- O `media-service` existe como recurso opcional de upload local, mas nao e necessario para navegar, buscar, abrir detalhes ou reservar hoteis.
 
 ## Envio Real De Codigo Por E-mail
 

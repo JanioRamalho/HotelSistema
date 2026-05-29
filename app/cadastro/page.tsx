@@ -3,20 +3,20 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { 
-  Eye, EyeOff, Mail, Lock, User, Phone, Calendar, 
+import {
+  Eye, EyeOff, Mail, Lock, User, Phone, Calendar,
   MapPin, ArrowLeft, Check, KeyRound, Loader2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select'
 import { confirmPasswordRegister, registerWithPassword } from '@/features/hotels/hotel-experience-api'
 
@@ -28,24 +28,21 @@ interface FormData {
   dataNascimento: string
   telefone: string
   genero: string
-  
+
   // Endereço
   cep: string
   estado: string
   cidade: string
-  
+
   // Conta
   senha: string
   confirmarSenha: string
-  
-  // Termos
-  aceitaTermos: boolean
   aceitaNewsletter: boolean
 }
 
 const estadosBrasileiros = [
-  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 
-  'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
+  'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
   'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
 ]
 
@@ -62,7 +59,7 @@ export default function CadastroPage() {
   const [feedbackMessage, setFeedbackMessage] = useState('')
   const [loadingMessage, setLoadingMessage] = useState('')
   const [generalError, setGeneralError] = useState('')
-  
+
   const [formData, setFormData] = useState<FormData>({
     nomeCompleto: '',
     email: '',
@@ -75,10 +72,9 @@ export default function CadastroPage() {
     cidade: '',
     senha: '',
     confirmarSenha: '',
-    aceitaTermos: false,
     aceitaNewsletter: false
   })
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const formatCPF = (value: string) => {
@@ -162,10 +158,6 @@ export default function CadastroPage() {
       newErrors.confirmarSenha = 'As senhas não coincidem'
     }
 
-    if (!formData.aceitaTermos) {
-      newErrors.aceitaTermos = 'Você precisa aceitar os termos de uso'
-    }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -178,7 +170,7 @@ export default function CadastroPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateStep2()) return
 
     setIsLoading(true)
@@ -236,7 +228,7 @@ export default function CadastroPage() {
   const passwordStrength = () => {
     const { senha } = formData
     if (!senha) return { level: 0, text: '', color: '' }
-    
+
     let strength = 0
     if (senha.length >= 8) strength++
     if (/[a-z]/.test(senha)) strength++
@@ -255,7 +247,7 @@ export default function CadastroPage() {
     <div className="min-h-screen flex">
       {/* Lado esquerdo - Imagem */}
       <div className="hidden lg:flex lg:w-1/2 relative">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: 'url(https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2080)'
@@ -269,12 +261,12 @@ export default function CadastroPage() {
             </div>
             <span className="text-2xl font-bold">Viajei</span>
           </Link>
-          
+
           <div className="space-y-8">
             <h1 className="text-4xl font-serif font-bold leading-tight text-balance">
               Crie sua conta e comece a explorar
             </h1>
-            
+
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 shrink-0 mt-0.5">
@@ -316,8 +308,8 @@ export default function CadastroPage() {
             </Link>
           </div>
 
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -326,21 +318,18 @@ export default function CadastroPage() {
 
           {/* Progress Steps */}
           <div className="flex items-center gap-2 mb-6">
-            <div className={`flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium ${
-              currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}>
+            <div className={`flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium ${currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              }`}>
               1
             </div>
             <div className={`flex-1 h-1 rounded ${currentStep >= 2 ? 'bg-primary' : 'bg-muted'}`} />
-            <div className={`flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium ${
-              currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}>
+            <div className={`flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium ${currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              }`}>
               2
             </div>
             <div className={`flex-1 h-1 rounded ${currentStep >= 3 ? 'bg-primary' : 'bg-muted'}`} />
-            <div className={`flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium ${
-              currentStep >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}>
+            <div className={`flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium ${currentStep >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              }`}>
               3
             </div>
           </div>
@@ -350,8 +339,8 @@ export default function CadastroPage() {
               {currentStep === 1 ? 'Dados Pessoais' : currentStep === 2 ? 'Criar Senha' : 'Verificar E-mail'}
             </h2>
             <p className="text-muted-foreground text-sm">
-              {currentStep === 1 
-                ? 'Preencha suas informações para criar sua conta' 
+              {currentStep === 1
+                ? 'Preencha suas informações para criar sua conta'
                 : currentStep === 2
                   ? 'Crie uma senha segura para proteger sua conta'
                   : 'Digite o codigo enviado para concluir seu cadastro'}
@@ -502,7 +491,7 @@ export default function CadastroPage() {
                   <p className="text-sm font-medium text-foreground mb-3">
                     Endereço <span className="text-muted-foreground font-normal">(opcional)</span>
                   </p>
-                  
+
                   <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-1.5">
                       <Label htmlFor="cep">CEP</Label>
@@ -552,9 +541,9 @@ export default function CadastroPage() {
                   </div>
                 </div>
 
-                <Button 
-                  type="button" 
-                  className="w-full mt-4" 
+                <Button
+                  type="button"
+                  className="w-full mt-4"
                   size="lg"
                   onClick={handleNextStep}
                 >
@@ -589,29 +578,27 @@ export default function CadastroPage() {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  
+
                   {/* Password strength indicator */}
                   {formData.senha && (
                     <div className="space-y-1.5 pt-1">
                       <div className="flex gap-1">
                         {[1, 2, 3, 4, 5].map((i) => (
-                          <div 
-                            key={i} 
-                            className={`h-1 flex-1 rounded-full ${
-                              i <= strength.level ? strength.color : 'bg-muted'
-                            }`} 
+                          <div
+                            key={i}
+                            className={`h-1 flex-1 rounded-full ${i <= strength.level ? strength.color : 'bg-muted'
+                              }`}
                           />
                         ))}
                       </div>
-                      <p className={`text-xs ${
-                        strength.level <= 2 ? 'text-destructive' : 
-                        strength.level <= 3 ? 'text-yellow-600' : 'text-green-600'
-                      }`}>
+                      <p className={`text-xs ${strength.level <= 2 ? 'text-destructive' :
+                          strength.level <= 3 ? 'text-yellow-600' : 'text-green-600'
+                        }`}>
                         Força da senha: {strength.text}
                       </p>
                     </div>
                   )}
-                  
+
                   {errors.senha && (
                     <p className="text-xs text-destructive">{errors.senha}</p>
                   )}
@@ -651,38 +638,13 @@ export default function CadastroPage() {
                   )}
                 </div>
 
-                {/* Termos */}
+                {/* Newsletter opcional */}
                 <div className="space-y-3 pt-2">
                   <div className="flex items-start gap-2">
-                    <Checkbox 
-                      id="aceitaTermos"
-                      checked={formData.aceitaTermos}
-                      onCheckedChange={(checked) => 
-                        setFormData({ ...formData, aceitaTermos: checked as boolean })
-                      }
-                      className="mt-0.5"
-                    />
-                    <Label htmlFor="aceitaTermos" className="text-sm font-normal cursor-pointer leading-tight">
-                      Li e aceito os{' '}
-                      <Link href="/termos" className="text-primary hover:underline">
-                        Termos de Uso
-                      </Link>{' '}
-                      e a{' '}
-                      <Link href="/privacidade" className="text-primary hover:underline">
-                        Política de Privacidade
-                      </Link>{' '}
-                      <span className="text-destructive">*</span>
-                    </Label>
-                  </div>
-                  {errors.aceitaTermos && (
-                    <p className="text-xs text-destructive">{errors.aceitaTermos}</p>
-                  )}
-
-                  <div className="flex items-start gap-2">
-                    <Checkbox 
+                    <Checkbox
                       id="aceitaNewsletter"
                       checked={formData.aceitaNewsletter}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         setFormData({ ...formData, aceitaNewsletter: checked as boolean })
                       }
                       className="mt-0.5"
@@ -694,19 +656,19 @@ export default function CadastroPage() {
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     variant="outline"
-                    className="flex-1" 
+                    className="flex-1"
                     size="lg"
                     onClick={() => setCurrentStep(1)}
                   >
                     Voltar
                   </Button>
-                  <Button 
-                    type="submit" 
-                    className="flex-1" 
-                    size="lg" 
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    size="lg"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Criando conta...' : 'Criar conta'}
