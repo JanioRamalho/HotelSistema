@@ -14,8 +14,14 @@ API Gateway Flask
   |-- proxy para servicos internos
   |-- logs estruturados
   |-- metricas de carga
+  |-- health check agregado
+  |-- balanceamento round-robin
   |
   +-- Hotel Service Flask :4101
+  |     v
+  |   SQLite local
+  |
+  +-- Hotel Service Flask :4102
   |     v
   |   SQLite local
   |
@@ -50,7 +56,7 @@ API Gateway Flask
 
 - `app/` e `components/`: frontend Next.js. A interface visual permanece desacoplada da arquitetura interna.
 - `services/api-gateway`: Flask API de entrada. Aplica rate limiting, registra logs e expoe metricas.
-- `services/hotel-service`: Flask API de busca e detalhe de hoteis na porta `4101`.
+- `services/hotel-service`: Flask API de busca e detalhe de hoteis. No `dev:all`, roda duas instancias nas portas `4101` e `4102` para demonstrar balanceamento.
 - `services/auth-service`: Flask API de cadastro com e-mail/senha, login com e-mail/senha e codigo enviado ao e-mail da conta.
 - `services/booking-service`: Flask API de carteira demo e reservas com desconto de saldo.
 - `services/geolocation-service`: Flask API de coordenadas do hotel para uso em mapa.
@@ -66,9 +72,12 @@ Componentes opcionais:
 
 1. O frontend acessa apenas o gateway.
 2. O gateway roteia a requisicao para o servico correto.
-3. O hotel-service usa SQLite local, dados demo internos e um conjunto versionado de imagens unicas.
-4. O validation-service valida dados antes da reserva.
-5. O booking-service controla carteira e reserva demo.
+3. O gateway alterna entre as instancias do hotel-service usando round-robin quando `HOTEL_SERVICE_URLS` tem mais de uma URL.
+4. O hotel-service usa SQLite local, dados demo internos e um conjunto versionado de imagens unicas.
+5. O auth-service emite um JWT Bearer apos login ou confirmacao de cadastro.
+6. O booking-service valida o JWT antes de liberar carteira ou criar reservas.
+7. O validation-service valida dados antes da reserva.
+8. O booking-service controla carteira e reserva demo.
 
 ## Banco
 
@@ -92,6 +101,7 @@ As tabelas guardam hoteis, quartos, imagens, comodidades, usuarios, verificacoes
 Gateway:
 
 - `GET /health`
+- `GET /health/services`
 - `GET /metrics`
 - `GET /api/hotels`
 - `GET /api/hotels/:slug`
@@ -99,6 +109,7 @@ Gateway:
 - `GET /api/wallet/me`
 - `GET /api/bookings/me`
 - `POST /api/bookings`
+- `PATCH /api/bookings/:id/cancel`
 - `POST /api/auth/password/register`
 - `POST /api/auth/password/register/confirm`
 - `POST /api/auth/password/login`
@@ -114,6 +125,46 @@ Opcional:
 O gateway expõe `GET /metrics`, com total de requisicoes, bloqueios por rate limit, rotas mais acessadas, upstreams usados, erros e tempo medio.
 
 Os logs sao estruturados em JSON e mostram metodo, rota, status, duracao e upstream.
+
+O gateway tambem expoe `GET /health/services`, que consulta o `/health` de cada upstream configurado e mostra quais instancias estao `up`, `down` ou `degraded`. O `media-service` aparece como opcional; os demais servicos sao obrigatorios para o fluxo principal.
+
+## Balanceamento
+
+O `hotel-service` pode rodar em duas instancias locais:
+
+```txt
+http://localhost:4101
+http://localhost:4102
+```
+
+Quando `HOTEL_SERVICE_URLS` contem as duas URLs, o API Gateway alterna as chamadas entre elas por round-robin. Isso permite demonstrar escalabilidade horizontal e tolerancia parcial a falhas.
+
+## Autenticacao
+
+O `auth-service` emite um JWT Bearer assinado com HS256 apos login ou confirmacao de cadastro. O frontend envia esse token no header:
+
+```txt
+Authorization: Bearer <token>
+```
+
+O `booking-service` valida esse JWT antes de liberar carteira, reservas e criacao de reserva demo.
+
+## Fluxo de Reserva
+
+```txt
+usuario escolhe hotel
+  -> abre detalhes do hotel
+  -> seleciona um quarto
+  -> vai para /hotel/:slug/quarto/:roomId
+  -> escolhe check-in, check-out e hospedes
+  -> sistema calcula diarias e total
+  -> booking-service valida o JWT
+  -> validation-service valida dados do hospede
+  -> booking-service debita a carteira demo
+  -> reserva aparece em /minhas-reservas
+```
+
+O cancelamento usa `PATCH /api/bookings/:id/cancel`, altera o status da reserva para `cancelled` e devolve o valor para a carteira demo.
 
 ## Backend Python
 
