@@ -2,6 +2,7 @@ import socket
 import subprocess
 import sys
 import time
+from shutil import which
 
 
 COMMANDS = [
@@ -49,7 +50,12 @@ def start_command(item):
         print(f"[dev:all] {item['name']} ja esta rodando na porta {port}; ignorando.")
         return
 
-    child = subprocess.Popen(item["command"])
+    command = item["command"].copy()
+    resolved = which(command[0])
+    if resolved:
+        command[0] = resolved
+
+    child = subprocess.Popen(command)
     children.append(child)
 
     if port and not wait_for_port(port):

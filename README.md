@@ -15,13 +15,49 @@ A arquitetura detalhada do sistema fica em [docs/architecture.md](docs/architect
 
 ## Como Rodar
 
+## O que mudou na refatoracao
+
+O frontend continua em Next.js/React. A mudanca foi concentrada no backend.
+
+- O API Gateway saiu de Node.js e agora roda em Flask em `services/api-gateway/src/server.py`.
+- Os servicos `hotel-service`, `auth-service`, `booking-service`, `geolocation-service` e `media-service` tambem foram migrados para Flask.
+- O `validation-service`, que ja era Python, agora tambem usa Flask em `services/validation-service/src/app.py`.
+- Os contratos HTTP foram mantidos: mesmas portas, rotas principais, payloads e respostas esperadas pelo frontend.
+- O rate limiting, health check, metricas, proxy para upstreams e logs estruturados continuam no API Gateway.
+- Os dados demo que estavam em arquivos `.js` foram convertidos para `.json`.
+- O comando unico `npm run dev:all` continua existindo, mas agora usa um runner Python em `scripts/dev_all.py`.
+
+Arquivos principais criados ou alterados:
+
+```txt
+requirements.txt
+scripts/dev_all.py
+services/common_py/
+services/api-gateway/src/server.py
+services/hotel-service/src/server.py
+services/auth-service/src/server.py
+services/booking-service/src/server.py
+services/geolocation-service/src/server.py
+services/media-service/src/server.py
+services/validation-service/src/app.py
+```
+
 ### Fluxo recomendado
+
+Instale as dependencias do frontend e do backend:
+
+```bash
+npm install
+python -m pip install -r requirements.txt
+```
 
 Use o comando unico para subir os servicos necessarios ao site:
 
 ```bash
 npm run dev:all
 ```
+
+Atencao: o comando correto tem dois-pontos. Use `npm run dev:all`, nao `npm run dev all`.
 
 Depois acesse:
 
@@ -58,6 +94,34 @@ npm run dev:media-service
 ```
 
 Use a segunda instancia do hotel-service apenas se quiser testar balanceamento via `HOTEL_SERVICE_URLS`.
+
+### Se der erro ao rodar
+
+1. Confirme se o Python esta acessivel:
+
+```bash
+python --version
+```
+
+2. Instale o Flask:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+3. Se alguma porta ja estiver ocupada, feche o processo anterior ou rode apenas o servico que falta. As portas usadas sao:
+
+```txt
+3000 frontend
+4100 api-gateway
+4101 hotel-service
+4201 auth-service
+4202 booking-service
+4204 geolocation-service
+4205 validation-service
+```
+
+4. Se estiver no Windows e o erro mencionar que nao foi possivel executar um programa, atualize a branch `teste`; o runner Python resolve automaticamente o caminho do `npm.cmd`.
 
 ## Endpoints Uteis
 

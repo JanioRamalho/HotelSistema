@@ -6,6 +6,7 @@ from flask import Flask, request
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from services.common_py.env import load_root_env
 from services.common_py.http import add_cors_headers, json_response
