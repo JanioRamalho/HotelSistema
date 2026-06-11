@@ -4,6 +4,7 @@ from pathlib import Path
 from urllib import request as urlrequest
 from urllib.error import HTTPError, URLError
 import json
+import logging
 import os
 import sys
 import time
@@ -17,7 +18,11 @@ from services.common_py.env import load_root_env
 from services.common_py.http import add_cors_headers, json_response
 
 
+# API Gateway: ponto unico de entrada do frontend para os microservicos.
+# Ele centraliza CORS, rate limit, metricas, health check agregado e proxy HTTP.
 load_root_env()
+
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 app = Flask(__name__)
 PORT = int(os.environ.get("PORT", "4100"))
@@ -31,6 +36,8 @@ def parse_urls(value):
     return [item.strip().rstrip("/") for item in str(value or "").split(",") if item.strip()]
 
 
+# Cada entrada pode receber uma ou mais URLs. No hotel-service usamos duas
+# instancias para demonstrar balanceamento de carga e tolerancia a falhas.
 UPSTREAMS = {
     "hotelService": parse_urls(os.environ.get("HOTEL_SERVICE_URLS", "http://localhost:4101")),
     "authService": parse_urls(os.environ.get("AUTH_SERVICE_URLS", "http://localhost:4201")),
@@ -38,6 +45,14 @@ UPSTREAMS = {
     "mediaService": parse_urls(os.environ.get("MEDIA_SERVICE_URLS", "http://localhost:4203")),
     "geolocationService": parse_urls(os.environ.get("GEOLOCATION_SERVICE_URLS", "http://localhost:4204")),
     "validationService": parse_urls(os.environ.get("VALIDATION_SERVICE_URLS", "http://localhost:4205")),
+}
+
+REQUIRED_UPSTREAMS = {
+    "hotelService",
+    "authService",
+    "bookingService",
+    "geolocationService",
+    "validationService",
 }
 
 upstream_indexes = defaultdict(int)
@@ -106,6 +121,7 @@ def is_rate_limited():
 
 
 def get_next_upstream(service_name):
+    # Round-robin simples: cada chamada escolhe a proxima instancia disponivel.
     urls = UPSTREAMS.get(service_name) or []
     if not urls:
         return None
@@ -123,7 +139,49 @@ def record_upstream(origin, status, duration_ms):
         item["errors"] += 1
 
 
+def check_upstream_health(service_name, upstream):
+    # Consulta /health de cada servico para expor a saude geral da arquitetura.
+    started = time.time()
+    target = f"{upstream}/health"
+    try:
+        with urlrequest.urlopen(target, timeout=UPSTREAM_TIMEOUT_MS / 1000) as response:
+            body = json.loads(response.read().decode("utf-8") or "{}")
+            duration = round((time.time() - started) * 1000)
+            return {
+                "service": service_name,
+                "url": upstream,
+                "required": service_name in REQUIRED_UPSTREAMS,
+                "status": "up",
+                "httpStatus": response.status,
+                "durationMs": duration,
+                "details": body,
+            }
+    except HTTPError as error:
+        duration = round((time.time() - started) * 1000)
+        return {
+            "service": service_name,
+            "url": upstream,
+            "required": service_name in REQUIRED_UPSTREAMS,
+            "status": "degraded",
+            "httpStatus": error.code,
+            "durationMs": duration,
+            "error": error.reason,
+        }
+    except (URLError, TimeoutError, OSError) as error:
+        duration = round((time.time() - started) * 1000)
+        return {
+            "service": service_name,
+            "url": upstream,
+            "required": service_name in REQUIRED_UPSTREAMS,
+            "status": "down",
+            "durationMs": duration,
+            "error": str(error),
+        }
+
+
 def proxy_json(service_name, path):
+    # Encaminha a requisicao original para o microservico correto.
+    # Se uma instancia falhar por timeout/conexao, tenta a proxima upstream.
     service_upstreams = UPSTREAMS.get(service_name) or []
     first = get_next_upstream(service_name)
     if not first:
@@ -179,6 +237,7 @@ def proxy_json(service_name, path):
 
 @app.before_request
 def before():
+    # Middleware do Gateway: contabiliza metricas e aplica limite basico por IP.
     if request.method == "OPTIONS":
         return json_response({}, 204)
     increment_metric(request.path)
@@ -192,6 +251,26 @@ def before():
 @app.get("/health")
 def health():
     return json_response({"status": "ok", "service": "api-gateway", "rateLimit": {"windowMs": RATE_LIMIT_WINDOW_MS, "max": RATE_LIMIT_MAX}, "upstreamTimeoutMs": UPSTREAM_TIMEOUT_MS, "upstreams": UPSTREAMS})
+
+
+@app.get("/health/services")
+def services_health():
+    # Health check agregado usado para visualizar tolerancia a falhas na demo.
+    checks = []
+    for service_name, upstreams in UPSTREAMS.items():
+        for upstream in upstreams:
+            checks.append(check_upstream_health(service_name, upstream))
+
+    required_checks = [item for item in checks if item["required"]]
+    up = sum(1 for item in checks if item["status"] == "up")
+    down = sum(1 for item in checks if item["status"] == "down")
+    degraded = sum(1 for item in checks if item["status"] == "degraded")
+    required_down = sum(1 for item in required_checks if item["status"] == "down")
+    required_degraded = sum(1 for item in required_checks if item["status"] == "degraded")
+    required_up = sum(1 for item in required_checks if item["status"] == "up")
+    status = "ok" if required_down == 0 and required_degraded == 0 else ("degraded" if required_up > 0 else "down")
+    http_status = 200 if status == "ok" else 207
+    return json_response({"status": status, "summary": {"up": up, "down": down, "degraded": degraded, "requiredUp": required_up, "requiredDown": required_down, "requiredDegraded": required_degraded, "total": len(checks)}, "services": checks}, http_status)
 
 
 @app.get("/metrics")
@@ -221,10 +300,14 @@ def auth(subpath):
 
 @app.route("/api/bookings", defaults={"subpath": ""}, methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 @app.route("/api/bookings/<path:subpath>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+def bookings(subpath):
+    return proxy_json("bookingService", f"/bookings{('/' + subpath) if subpath else ''}")
+
+
 @app.route("/api/wallet", defaults={"subpath": ""}, methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 @app.route("/api/wallet/<path:subpath>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
-def booking(subpath):
-    return proxy_json("bookingService", request.path.replace("/api", ""))
+def wallet(subpath):
+    return proxy_json("bookingService", f"/wallet{('/' + subpath) if subpath else ''}")
 
 
 @app.route("/api/media", defaults={"subpath": ""}, methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
@@ -253,4 +336,4 @@ def not_found(_error):
 if __name__ == "__main__":
     print(f"api-gateway listening on http://localhost:{PORT}")
     print(f"hotel-service upstreams: {', '.join(UPSTREAMS['hotelService'])}")
-    app.run(host="0.0.0.0", port=PORT, threaded=True)
+    app.run(host="0.0.0.0", port=PORT, threaded=True, debug=False, use_reloader=False)
