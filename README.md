@@ -24,6 +24,9 @@ O frontend continua em Next.js/React. A mudanca foi concentrada no backend.
 - O `validation-service`, que ja era Python, agora tambem usa Flask em `services/validation-service/src/app.py`.
 - Os contratos HTTP foram mantidos: mesmas portas, rotas principais, payloads e respostas esperadas pelo frontend.
 - O rate limiting, health check, metricas, proxy para upstreams e logs estruturados continuam no API Gateway.
+- O gateway agora tambem expoe health check agregado em `/health/services`.
+- O `dev:all` sobe duas instancias do `hotel-service` para demonstrar balanceamento round-robin.
+- O fluxo de login/cadastro agora retorna JWT Bearer usado nas rotas de carteira e reserva.
 - Os dados demo que estavam em arquivos `.js` foram convertidos para `.json`.
 - O comando unico `npm run dev:all` continua existindo, mas agora usa um runner Python em `scripts/dev_all.py`.
 
@@ -78,6 +81,7 @@ Se quiser rodar servicos individualmente:
 
 ```bash
 npm run dev:hotel-service:1
+npm run dev:hotel-service:2
 npm run dev:auth-service
 npm run dev:booking-service
 npm run dev:geolocation-service
@@ -89,11 +93,10 @@ npm run dev
 Servicos opcionais que nao entram no fluxo visual principal:
 
 ```bash
-npm run dev:hotel-service:2
 npm run dev:media-service
 ```
 
-Use a segunda instancia do hotel-service apenas se quiser testar balanceamento via `HOTEL_SERVICE_URLS`.
+O `dev:all` ja configura `HOTEL_SERVICE_URLS=http://localhost:4101,http://localhost:4102` para demonstrar balanceamento. No fluxo manual, configure essa variavel antes de subir o gateway se quiser usar as duas instancias.
 
 ### Se der erro ao rodar
 
@@ -115,6 +118,7 @@ python -m pip install -r requirements.txt
 3000 frontend
 4100 api-gateway
 4101 hotel-service
+4102 hotel-service segunda instancia
 4201 auth-service
 4202 booking-service
 4204 geolocation-service
@@ -127,10 +131,14 @@ python -m pip install -r requirements.txt
 
 ```txt
 http://localhost:4100/health
+http://localhost:4100/health/services
 http://localhost:4100/metrics
 http://localhost:4100/api/hotels
 http://localhost:4100/api/hotels/resort-praia-do-forte
 POST http://localhost:4100/api/hotels/generate
+GET http://localhost:4100/api/bookings/me
+POST http://localhost:4100/api/bookings
+PATCH http://localhost:4100/api/bookings/:id/cancel
 http://localhost:4205/health
 ```
 
@@ -257,3 +265,39 @@ usuario preenche cadastro
 ```
 
 Assim, se o envio do e-mail falhar, a conta nao fica criada em `usuarios`.
+
+## Fluxo De Reserva Demo
+
+```txt
+usuario escolhe um hotel
+  -> seleciona um quarto
+  -> acessa /hotel/:slug/quarto/:roomId
+  -> informa datas e dados do hospede
+  -> sistema calcula noites x diaria
+  -> usuario paga com saldo demo
+  -> reserva aparece em /minhas-reservas
+```
+
+O cancelamento da reserva altera o status para `cancelled` e estorna o valor para a carteira demo.
+
+## Autenticacao Com JWT
+
+Depois do login ou da confirmacao de cadastro, o `auth-service` retorna:
+
+```json
+{
+  "data": {
+    "user": {},
+    "token": "...",
+    "walletBonusCents": 2000000
+  }
+}
+```
+
+O frontend guarda esse token na sessao local e envia nas rotas protegidas:
+
+```txt
+Authorization: Bearer <token>
+```
+
+As rotas de carteira e reserva no `booking-service` validam esse JWT antes de acessar dados do usuario.
