@@ -44,7 +44,7 @@ import {
   fetchDemoBookings,
   fetchDemoWallet,
   fetchHotelGeolocation,
-  HotelSessionUser,
+  HotelSession,
   HotelGeolocation,
 } from '@/features/hotels/hotel-experience-api'
 import { Button } from '@/components/ui/button'
@@ -84,7 +84,7 @@ export function HotelDetailClient({ hotel }: Props) {
   const [wallet, setWallet] = useState<DemoWallet | null>(null)
   const [bookings, setBookings] = useState<DemoBooking[]>([])
   const [geolocation, setGeolocation] = useState<HotelGeolocation | null>(null)
-  const [sessionUser, setSessionUser] = useState<HotelSessionUser | null>(null)
+  const [session, setSession] = useState<HotelSession | null>(null)
   const [bookingForm, setBookingForm] = useState({
     checkIn: '',
     checkOut: '',
@@ -104,7 +104,12 @@ export function HotelDetailClient({ hotel }: Props) {
     if (!storedUser) return
 
     try {
-      setSessionUser(JSON.parse(storedUser) as HotelSessionUser)
+      const parsed = JSON.parse(storedUser) as HotelSession
+      if ('user' in parsed && parsed.token) {
+        setSession(parsed)
+      } else {
+        window.localStorage.removeItem(sessionStorageKey)
+      }
     } catch {
       window.localStorage.removeItem(sessionStorageKey)
     }
@@ -127,13 +132,14 @@ export function HotelDetailClient({ hotel }: Props) {
   }, [hotel.slug])
 
   useEffect(() => {
-    if (!sessionUser) {
+    if (!session) {
       setWallet(null)
       setBookings([])
       return
     }
 
-    const currentUser = sessionUser
+    const currentSession = session
+    const currentUser = currentSession.user
     setBookingForm((prev) => ({
       ...prev,
       guestName: prev.guestName || currentUser.name,
@@ -144,8 +150,8 @@ export function HotelDetailClient({ hotel }: Props) {
     async function loadAccountData() {
       try {
         const [walletData, bookingData] = await Promise.all([
-          fetchDemoWallet(currentUser.id, controller.signal),
-          fetchDemoBookings(currentUser.id, controller.signal),
+          fetchDemoWallet(currentSession.token, controller.signal),
+          fetchDemoBookings(currentSession.token, controller.signal),
         ])
         setWallet(walletData)
         setBookings(bookingData)
@@ -158,7 +164,9 @@ export function HotelDetailClient({ hotel }: Props) {
     loadAccountData()
 
     return () => controller.abort()
-  }, [sessionUser])
+  }, [session])
+
+  const sessionUser = session?.user || null
 
   const nextImage = () => {
     setSelectedImageIndex((prev) => (prev + 1) % hotel.images.length)
@@ -206,11 +214,11 @@ export function HotelDetailClient({ hotel }: Props) {
   const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${map.longitude - 0.01}%2C${map.latitude - 0.01}%2C${map.longitude + 0.01}%2C${map.latitude + 0.01}&layer=mapnik&marker=${map.latitude}%2C${map.longitude}`
 
   const refreshWalletAndBookings = async () => {
-    if (!sessionUser) return
+    if (!session) return
 
     const [walletData, bookingData] = await Promise.all([
-      fetchDemoWallet(sessionUser.id),
-      fetchDemoBookings(sessionUser.id),
+      fetchDemoWallet(session.token),
+      fetchDemoBookings(session.token),
     ])
     setWallet(walletData)
     setBookings(bookingData)
@@ -219,7 +227,7 @@ export function HotelDetailClient({ hotel }: Props) {
   const handleDemoBooking = async () => {
     if (!selectedRoom) return
 
-    if (!sessionUser) {
+    if (!session) {
       window.location.href = `/login?redirect=${encodeURIComponent(`/hotel/${hotel.slug}`)}`
       return
     }
@@ -251,7 +259,7 @@ export function HotelDetailClient({ hotel }: Props) {
         guestDocument: bookingForm.guestDocument,
         guestBirthdate: bookingForm.guestBirthdate,
         guestZipCode: bookingForm.guestZipCode,
-      }, sessionUser.id)
+      }, session.token)
       await refreshWalletAndBookings()
       setBookingStatus('success')
       setBookingMessage(`Reserva confirmada. Saldo restante: R$ ${(result.data.remainingBalanceCents / 100).toLocaleString('pt-BR')}`)
@@ -494,8 +502,10 @@ export function HotelDetailClient({ hotel }: Props) {
                               <span className="text-sm font-normal text-muted-foreground">/noite</span>
                             </p>
                           </div>
-                          <Button onClick={() => setSelectedRoom(room)}>
-                            Reservar
+                          <Button asChild>
+                            <Link href={`/hotel/${hotel.slug}/quarto/${encodeURIComponent(room.id)}`}>
+                              Reservar
+                            </Link>
                           </Button>
                         </div>
                       </div>

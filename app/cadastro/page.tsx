@@ -213,8 +213,9 @@ export default function CadastroPage() {
     setGeneralError('')
 
     try {
-      await confirmPasswordRegister(pendingEmail, verificationCode)
-      router.push(`/login?cadastro=verificar&email=${encodeURIComponent(pendingEmail)}`)
+      const session = await confirmPasswordRegister(pendingEmail, verificationCode)
+      window.localStorage.setItem('hotel-sistema-session-user', JSON.stringify(session))
+      router.push('/')
     } catch (error) {
       setErrors({
         codigo: error instanceof Error ? error.message : 'Nao foi possivel confirmar o cadastro.',

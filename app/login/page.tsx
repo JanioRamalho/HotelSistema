@@ -49,8 +49,8 @@ function LoginPageContent() {
     setMessage('')
 
     try {
-      const user = await loginWithPassword(email, password)
-      window.localStorage.setItem(sessionStorageKey, JSON.stringify(user))
+      const session = await loginWithPassword(email, password)
+      window.localStorage.setItem(sessionStorageKey, JSON.stringify(session))
       setStatus('success')
       setMessage('Login realizado. Carteira demo liberada na sua conta.')
       router.push(redirectTo)
