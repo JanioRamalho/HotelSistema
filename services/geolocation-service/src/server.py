@@ -1,4 +1,5 @@
 from pathlib import Path
+import logging
 import os
 import sys
 
@@ -12,8 +13,12 @@ from services.common_py.http import add_cors_headers, json_response
 from services.common_py.sqlite_client import connect, database_path, initialize_database
 
 
+# Geolocation Service: isola dados de localizacao dos hoteis.
+# O Gateway usa este servico para consultar endereco e coordenadas por slug.
 load_root_env()
 initialize_database()
+
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 app = Flask(__name__)
 PORT = int(os.environ.get("PORT", "4204"))
@@ -32,6 +37,7 @@ def health():
 
 @app.get("/hotel/<path:slug>")
 def hotel(slug):
+    # Retorna apenas os campos necessarios para mapas/localizacao.
     with connect() as conn:
         row = conn.execute(
             """
@@ -54,5 +60,4 @@ def not_found(_error):
 
 if __name__ == "__main__":
     print(f"{SERVICE_NAME} listening on http://localhost:{PORT}")
-    app.run(host="0.0.0.0", port=PORT, threaded=True)
-
+    app.run(host="0.0.0.0", port=PORT, threaded=True, debug=False, use_reloader=False)

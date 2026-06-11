@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import logging
 import sys
 
 from flask import Flask, request
@@ -14,8 +15,12 @@ from services.common_py.sqlite_client import connect, database_path, initialize_
 from fake_hotel_provider import fetch_fake_hotels
 
 
+# Hotel Service: fornece catalogo de hoteis, filtros, detalhes e quartos.
+# Na demo ele combina dados do SQLite com uma lista dummy para enriquecer o catalogo.
 load_root_env()
 initialize_database()
+
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 app = Flask(__name__)
 PORT = int(__import__("os").environ.get("PORT", "4101"))
@@ -48,6 +53,7 @@ def to_list(value):
 
 
 def parse_filters(args):
+    # Normaliza query params recebidos do frontend antes da busca.
     return {
         "city": args.get("city") or None,
         "state": args.get("state") or None,
@@ -133,6 +139,7 @@ def search_dummy(filters):
 
 
 def hydrate(hotel_rows):
+    # Monta o objeto completo do hotel com imagens, comodidades, avaliacoes e quartos.
     hotels = [map_hotel_row(row) for row in hotel_rows]
     for hotel in hotels:
         hotel_id = hotel["id"]
@@ -184,6 +191,7 @@ def known_slugs():
 
 
 def assign_unique_images(hotels):
+    # Garante imagens variadas no catalogo para melhorar a experiencia visual da demo.
     slugs = known_slugs()
     result = []
     for hotel in hotels:
@@ -197,6 +205,7 @@ def assign_unique_images(hotels):
 
 
 def search_hotels(filters):
+    # Busca primeiro no SQLite e completa com dados dummy sem duplicar slugs.
     conditions = []
     params = []
     if filters["city"]:
@@ -244,6 +253,7 @@ def health():
 
 @app.post("/hotels/generate")
 def generate_hotels():
+    # Endpoint de apoio para gerar novos hoteis fake e persistir no SQLite local.
     body = request.get_json(silent=True) or {}
     generated = fetch_fake_hotels(count=body.get("count", 5), city=body.get("city"), state=body.get("state"))
     with connect() as conn:
@@ -260,6 +270,7 @@ def generate_hotels():
 @app.get("/hotels")
 @app.get("/hotels/unique-images")
 def hotels():
+    # Lista hoteis para a pagina inicial e para filtros de busca.
     data = search_hotels(parse_filters(request.args))
     meta = {"total": len(data), "source": SERVICE_NAME, "dataSource": data_source()}
     if request.path.endswith("unique-images"):
@@ -269,6 +280,7 @@ def hotels():
 
 @app.get("/hotels/<path:slug>")
 def hotel_detail(slug):
+    # Detalhe usado pela pagina do hotel e pela pagina de reserva do quarto.
     hotel = get_hotel_by_slug(slug)
     if not hotel:
         return json_response({"error": "hotel_not_found"}, 404)
@@ -301,4 +313,4 @@ def not_found(_error):
 
 if __name__ == "__main__":
     print(f"{SERVICE_NAME} listening on http://localhost:{PORT}")
-    app.run(host="0.0.0.0", port=PORT, threaded=True)
+    app.run(host="0.0.0.0", port=PORT, threaded=True, debug=False, use_reloader=False)

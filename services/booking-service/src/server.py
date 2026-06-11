@@ -3,6 +3,7 @@ from urllib import request as urlrequest
 from urllib.error import HTTPError, URLError
 from uuid import uuid4
 import json
+import logging
 import os
 import sys
 
@@ -12,12 +13,17 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 
 from services.common_py.env import load_root_env
+from services.common_py.auth import bearer_token_from_header, verify_access_token
 from services.common_py.http import add_cors_headers, json_response
 from services.common_py.sqlite_client import connect, database_path, initialize_database
 
 
+# Booking Service: concentra carteira demo, criacao de reservas e cancelamentos.
+# Todas as rotas de usuario validam JWT recebido pelo Gateway.
 load_root_env()
 initialize_database()
+
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 app = Flask(__name__)
 PORT = int(os.environ.get("PORT", "4202"))
@@ -31,8 +37,10 @@ def cors(response):
 
 
 def authenticated_user_id():
-    user_id = request.headers.get("x-user-id", "").strip()
-    return user_id or None
+    # Extrai o usuario do token JWT para proteger carteira e reservas.
+    token = bearer_token_from_header(request.headers.get("authorization", ""))
+    payload = verify_access_token(token)
+    return payload.get("sub") if payload else None
 
 
 def nights_between(check_in, check_out):
@@ -47,6 +55,7 @@ def nights_between(check_in, check_out):
 
 
 def validate_guest(payload):
+    # Delegacao para o validation-service: reserva so avanca com hospede valido.
     body = json.dumps({
         "name": payload.get("guestName"),
         "email": payload.get("guestEmail"),
@@ -72,6 +81,77 @@ def wallet(conn, user_id):
     return conn.execute("SELECT usuario_id AS user_id, saldo_centavos AS balance_cents FROM carteiras WHERE usuario_id = ?", (user_id,)).fetchone()
 
 
+def find_room(conn, room_id):
+    return conn.execute(
+        "SELECT q.id, q.hotel_id, q.preco AS price, q.capacidade AS capacity, h.nome AS hotel_name FROM quartos q JOIN hoteis h ON h.id = q.hotel_id WHERE q.id = ?",
+        (room_id,),
+    ).fetchone()
+
+
+def ensure_demo_room(conn, payload):
+    # Permite reservar quartos vindos do catalogo dummy, persistindo um registro minimo.
+    hotel = payload.get("hotel") or {}
+    room = payload.get("room") or {}
+    if not hotel or not room or not room.get("id"):
+        return None
+
+    hotel_id = hotel.get("id") or f"demo-hotel-{hotel.get('slug') or room.get('id')}"
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO hoteis (
+          id, nome, slug, descricao, descricao_curta, endereco, cidade, estado, pais, cep,
+          latitude, longitude, estrelas, nota, quantidade_avaliacoes, preco_inicial,
+          politica_check_in, politica_check_out, politica_cancelamento, politica_pets, politica_criancas,
+          contato_telefone, contato_email, contato_site
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            hotel_id,
+            hotel.get("name") or "Hotel demo",
+            hotel.get("slug") or hotel_id,
+            hotel.get("description") or "Hotel demo gerado a partir do catalogo.",
+            hotel.get("shortDescription") or hotel.get("description") or "Hotel demo.",
+            hotel.get("address") or "",
+            hotel.get("city") or "",
+            hotel.get("state") or "",
+            hotel.get("country") or "Brasil",
+            hotel.get("zipCode") or "",
+            hotel.get("latitude") or 0,
+            hotel.get("longitude") or 0,
+            hotel.get("stars") or 3,
+            hotel.get("rating") or 0,
+            hotel.get("reviewCount") or 0,
+            hotel.get("priceFrom") or room.get("price") or 0,
+            (hotel.get("policies") or {}).get("checkIn") or "14:00",
+            (hotel.get("policies") or {}).get("checkOut") or "12:00",
+            (hotel.get("policies") or {}).get("cancellation") or "",
+            (hotel.get("policies") or {}).get("pets") or "",
+            (hotel.get("policies") or {}).get("children") or "",
+            (hotel.get("contact") or {}).get("phone") or "",
+            (hotel.get("contact") or {}).get("email") or "",
+            (hotel.get("contact") or {}).get("website"),
+        ),
+    )
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO quartos (
+          id, hotel_id, nome, descricao, categoria, preco, capacidade, tamanho, disponivel
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+        """,
+        (
+            room.get("id"),
+            hotel_id,
+            room.get("name") or "Quarto demo",
+            room.get("description") or "Quarto demo gerado a partir do catalogo.",
+            room.get("category") if room.get("category") in ("economic", "standard", "luxury") else "standard",
+            room.get("price") or 0,
+            room.get("capacity") or 1,
+            room.get("size") or 0,
+        ),
+    )
+    return find_room(conn, room.get("id"))
+
+
 @app.get("/health")
 def health():
     return json_response({"status": "ok", "service": SERVICE_NAME, "port": PORT, "databasePath": str(database_path())})
@@ -79,6 +159,7 @@ def health():
 
 @app.get("/wallet/me")
 def wallet_me():
+    # Consulta saldo da carteira demo do usuario autenticado.
     user_id = authenticated_user_id()
     if not user_id:
         return json_response({"error": "login_required", "message": "Faca login para acessar sua carteira demo."}, 401)
@@ -91,6 +172,7 @@ def wallet_me():
 
 @app.get("/bookings/me")
 def bookings_me():
+    # Lista reservas do usuario para a tela "Minhas reservas".
     user_id = authenticated_user_id()
     if not user_id:
         return json_response({"error": "login_required", "message": "Faca login para ver suas reservas."}, 401)
@@ -116,17 +198,15 @@ def bookings_me():
 
 @app.post("/bookings")
 def create_booking():
+    # Fluxo principal: valida quarto/datas/hospede, debita carteira e confirma reserva.
     user_id = authenticated_user_id()
     if not user_id:
         return json_response({"error": "login_required", "message": "Faca login para concluir sua reserva demo."}, 401)
     payload = request.get_json(silent=True) or {}
     with connect() as conn:
-        room = conn.execute(
-            "SELECT q.id, q.hotel_id, q.preco AS price, q.capacidade AS capacity, h.nome AS hotel_name FROM quartos q JOIN hoteis h ON h.id = q.hotel_id WHERE q.id = ?",
-            (payload.get("roomId"),),
-        ).fetchone()
+        room = find_room(conn, payload.get("roomId")) or ensure_demo_room(conn, payload)
         if not room:
-            return json_response({"error": "room_not_found"}, 404)
+            return json_response({"error": "room_not_found", "message": "Quarto nao encontrado para reserva."}, 404)
         nights = nights_between(payload.get("checkIn"), payload.get("checkOut"))
         if nights <= 0:
             return json_response({"error": "invalid_dates", "message": "Check-out deve ser depois do check-in."}, 400)
@@ -163,6 +243,39 @@ def create_booking():
     return json_response({"data": {"bookingId": booking_id, "userId": user_id, "hotelId": room["hotel_id"], "roomId": room["id"], "nights": nights, "totalCents": total_cents, "remainingBalanceCents": remaining}}, 201)
 
 
+@app.patch("/bookings/<booking_id>/cancel")
+def cancel_booking(booking_id):
+    # Cancela reserva do proprio usuario e estorna o valor para a carteira demo.
+    user_id = authenticated_user_id()
+    if not user_id:
+        return json_response({"error": "login_required", "message": "Faca login para cancelar sua reserva."}, 401)
+
+    with connect() as conn:
+        booking = conn.execute(
+            """
+            SELECT id, usuario_id AS user_id, preco_total AS total_price, status
+            FROM reservas
+            WHERE id = ? AND usuario_id = ?
+            """,
+            (booking_id, user_id),
+        ).fetchone()
+
+        if not booking:
+            return json_response({"error": "booking_not_found"}, 404)
+        if booking["status"] == "cancelled":
+            return json_response({"error": "booking_already_cancelled", "message": "Esta reserva ja foi cancelada."}, 409)
+
+        refund_cents = int(float(booking["total_price"]) * 100)
+        transaction_id = str(uuid4())
+        conn.execute("UPDATE reservas SET status = 'cancelled', atualizado_em = CURRENT_TIMESTAMP WHERE id = ?", (booking_id,))
+        conn.execute("UPDATE carteiras SET saldo_centavos = saldo_centavos + ?, atualizado_em = CURRENT_TIMESTAMP WHERE usuario_id = ?", (refund_cents, user_id))
+        conn.execute("INSERT INTO transacoes_carteira (id, usuario_id, reserva_id, tipo, valor_centavos, descricao) VALUES (?, ?, ?, 'credit', ?, ?)", (transaction_id, user_id, booking_id, refund_cents, "Estorno de reserva demo cancelada"))
+        wallet_row = wallet(conn, user_id)
+        conn.commit()
+
+    return json_response({"data": {"bookingId": booking_id, "status": "cancelled", "refundedCents": refund_cents, "balanceCents": wallet_row["balance_cents"] if wallet_row else None}})
+
+
 @app.errorhandler(404)
 def not_found(_error):
     return json_response({"error": "not_found"}, 404)
@@ -170,4 +283,4 @@ def not_found(_error):
 
 if __name__ == "__main__":
     print(f"{SERVICE_NAME} listening on http://localhost:{PORT}")
-    app.run(host="0.0.0.0", port=PORT, threaded=True)
+    app.run(host="0.0.0.0", port=PORT, threaded=True, debug=False, use_reloader=False)

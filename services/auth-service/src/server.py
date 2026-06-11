@@ -5,6 +5,7 @@ from urllib import request as urlrequest
 from urllib.error import URLError, HTTPError
 import hashlib
 import json
+import logging
 import os
 import random
 import smtplib
@@ -17,18 +18,23 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 
 from services.common_py.env import load_root_env
+from services.common_py.auth import create_access_token
 from services.common_py.http import add_cors_headers, json_response
 from services.common_py.sqlite_client import connect, database_path, initialize_database
 
 
+# Auth Service: cuida de cadastro, login, verificacao por codigo e emissao de JWT.
+# Tambem cria a carteira demo inicial quando o usuario confirma a conta ou faz login.
 load_root_env()
 initialize_database()
+
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 app = Flask(__name__)
 PORT = int(os.environ.get("PORT", "4201"))
 SERVICE_NAME = os.environ.get("SERVICE_NAME", "auth-service")
 VALIDATION_SERVICE_URL = os.environ.get("VALIDATION_SERVICE_URL", "http://localhost:4205")
-EMAIL_PROVIDER = os.environ.get("EMAIL_PROVIDER", "console")
+EMAIL_PROVIDER = os.environ.get("EMAIL_PROVIDER", "console").strip().lower()
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 SMTP_HOST = os.environ.get("SMTP_HOST", "")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
@@ -36,6 +42,7 @@ SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
 EMAIL_FROM = os.environ.get("EMAIL_FROM", "Viajei <onboarding@resend.dev>")
 EXTERNAL_TIMEOUT = int(os.environ.get("EXTERNAL_REQUEST_TIMEOUT_MS", "5000")) / 1000
+SMTP_TIMEOUT = int(os.environ.get("SMTP_TIMEOUT_MS", str(int(EXTERNAL_TIMEOUT * 1000)))) / 1000
 
 
 @app.after_request
@@ -100,6 +107,7 @@ def http_post_json(url, payload):
 
 
 def validate_registration(payload):
+    # O cadastro reutiliza o validation-service para manter regras de entrada fora do auth.
     try:
         status, body = http_post_json(
             f"{VALIDATION_SERVICE_URL}/validate/reservation-guest",
@@ -128,8 +136,26 @@ def create_email_html(code):
     return f"<h2>Codigo de verificacao</h2><p>Use o codigo abaixo para confirmar seu login no Viajei:</p><p style=\"font-size: 28px; font-weight: 700; letter-spacing: 4px;\">{code}</p><p>Este codigo expira em 10 minutos.</p>"
 
 
+def smtp_configured():
+    return bool(SMTP_HOST and SMTP_USER and SMTP_PASS)
+
+
+def email_provider_status():
+    if EMAIL_PROVIDER == "smtp":
+        return "smtp"
+    if EMAIL_PROVIDER == "resend":
+        return "resend"
+    return "console"
+
+
 def send_verification_email(email, code):
-    if SMTP_HOST and SMTP_USER and SMTP_PASS:
+    # Envia codigo por SMTP/Resend; em modo console, imprime o codigo no terminal.
+    provider = email_provider_status()
+
+    if provider == "smtp":
+        if not smtp_configured():
+            raise RuntimeError("SMTP incompleto. Configure SMTP_HOST, SMTP_USER e SMTP_PASS no arquivo .env.")
+
         message = EmailMessage()
         message["From"] = EMAIL_FROM
         message["To"] = email
@@ -137,16 +163,19 @@ def send_verification_email(email, code):
         message.set_content(f"Codigo de verificacao do Viajei: {code}\n\nEste codigo expira em 10 minutos.")
         message.add_alternative(create_email_html(code), subtype="html")
         smtp_class = smtplib.SMTP_SSL if SMTP_PORT == 465 else smtplib.SMTP
-        with smtp_class(SMTP_HOST, SMTP_PORT, timeout=15) as smtp:
+        with smtp_class(SMTP_HOST, SMTP_PORT, timeout=SMTP_TIMEOUT) as smtp:
             if SMTP_PORT != 465:
                 smtp.starttls()
             smtp.login(SMTP_USER, SMTP_PASS)
             smtp.send_message(message)
         return {"provider": "smtp", "delivered": True}
 
-    if EMAIL_PROVIDER != "resend" or not RESEND_API_KEY:
+    if provider == "console":
         print(json.dumps({"service": SERVICE_NAME, "event": "email_code_console_fallback", "email": email, "code": code}))
         return {"provider": "console", "delivered": False}
+
+    if not RESEND_API_KEY:
+        raise RuntimeError("Resend incompleto. Configure RESEND_API_KEY no arquivo .env.")
 
     payload = {"from": EMAIL_FROM, "to": email, "subject": "Codigo de verificacao do Viajei", "html": create_email_html(code)}
     req = urlrequest.Request(
@@ -162,6 +191,7 @@ def send_verification_email(email, code):
 
 
 def activate_wallet(conn, user_id):
+    # Carteira demo usada pelo fluxo academico de pagamento de reservas.
     conn.execute("INSERT OR IGNORE INTO carteiras (usuario_id, saldo_centavos) VALUES (?, 2000000)", (user_id,))
 
 
@@ -172,6 +202,7 @@ def health():
 
 @app.post("/password/register")
 def password_register():
+    # Primeiro passo do cadastro: valida dados, grava cadastro pendente e envia codigo.
     payload = request.get_json(silent=True) or {}
     email = str(payload.get("email") or "").strip().lower()
     name = str(payload.get("name") or "").strip()
@@ -212,6 +243,7 @@ def password_register():
 
 @app.post("/password/register/confirm")
 def password_register_confirm():
+    # Segundo passo do cadastro: confirma o codigo, cria o usuario e retorna JWT.
     payload = request.get_json(silent=True) or {}
     email = str(payload.get("email") or "").strip().lower()
     code_hash = hash_code(str(payload.get("code") or "").strip())
@@ -239,11 +271,13 @@ def password_register_confirm():
         activate_wallet(conn, user_id)
         conn.commit()
         user = row_to_user(find_user_by_id(conn, user_id))
-    return json_response({"data": {"user": user, "walletBonusCents": 2000000}}, 201)
+    token = create_access_token(user["id"], user["email"])
+    return json_response({"data": {"user": user, "token": token, "walletBonusCents": 2000000}}, 201)
 
 
 @app.post("/password/login")
 def password_login():
+    # Login por senha: autentica credenciais e retorna token JWT para chamadas protegidas.
     payload = request.get_json(silent=True) or {}
     email = str(payload.get("email") or "").strip().lower()
     password = str(payload.get("password") or "")
@@ -256,7 +290,8 @@ def password_login():
         activate_wallet(conn, user["id"])
         conn.commit()
         public = row_to_user(user)
-    return json_response({"data": {"user": public, "walletBonusCents": 2000000}})
+    token = create_access_token(public["id"], public["email"])
+    return json_response({"data": {"user": public, "token": token, "walletBonusCents": 2000000}})
 
 
 @app.post("/email/verify-code")
@@ -272,7 +307,8 @@ def email_verify_code():
         activate_wallet(conn, record["usuario_id"])
         conn.commit()
         user = row_to_user(find_user_by_id(conn, record["usuario_id"]))
-    return json_response({"data": {"verified": True, "user": user, "walletBonusCents": 2000000}})
+    token = create_access_token(user["id"], user["email"])
+    return json_response({"data": {"verified": True, "user": user, "token": token, "walletBonusCents": 2000000}})
 
 
 @app.errorhandler(404)
@@ -282,6 +318,11 @@ def not_found(_error):
 
 if __name__ == "__main__":
     print(f"{SERVICE_NAME} listening on http://localhost:{PORT}")
-    print(json.dumps({"service": SERVICE_NAME, "event": "auth_config", "emailProvider": "smtp" if SMTP_HOST and SMTP_USER and SMTP_PASS else ("resend" if EMAIL_PROVIDER == "resend" and RESEND_API_KEY else "console"), "smtpConfigured": bool(SMTP_HOST and SMTP_USER and SMTP_PASS)}))
-    app.run(host="0.0.0.0", port=PORT, threaded=True)
-
+    print(json.dumps({
+        "service": SERVICE_NAME,
+        "event": "auth_config",
+        "emailProvider": email_provider_status(),
+        "smtpConfigured": smtp_configured(),
+        "resendConfigured": bool(RESEND_API_KEY),
+    }))
+    app.run(host="0.0.0.0", port=PORT, threaded=True, debug=False, use_reloader=False)

@@ -1,4 +1,5 @@
 from datetime import date, datetime
+import logging
 import os
 import re
 
@@ -7,8 +8,11 @@ from flask import Flask, request
 
 PORTA = int(os.environ.get("PORT", "4205"))
 NOME_SERVICO = os.environ.get("SERVICE_NAME", "validation-service")
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 app = Flask(__name__)
 
+# Validation Service: centraliza regras de validacao usadas por cadastro e reserva.
+# Ele evita duplicar regras de CPF, telefone, e-mail, CEP e idade em outros servicos.
 
 def somente_digitos(valor):
     return re.sub(r"\D", "", str(valor or ""))
@@ -66,6 +70,7 @@ def validar_email(email):
 
 
 def validar_hospede_reserva(dados):
+    # Valida o conjunto completo exigido para criar uma reserva de hotel.
     erros = []
     idade_minima = int(dados.get("minimumAge") or 18)
     cpf = dados.get("cpf") or dados.get("document")
@@ -142,6 +147,7 @@ def validate_birthdate():
 
 @app.post("/validate/reservation-guest")
 def validate_reservation_guest():
+    # Endpoint consumido pelo auth-service e booking-service.
     resultado = validar_hospede_reserva(request.get_json(silent=True) or {})
     return resultado, 200 if resultado["valid"] else 422
 
@@ -153,4 +159,4 @@ def not_found(_error):
 
 if __name__ == "__main__":
     print(f"{NOME_SERVICO} listening on http://localhost:{PORTA}")
-    app.run(host="0.0.0.0", port=PORTA, threaded=True)
+    app.run(host="0.0.0.0", port=PORTA, threaded=True, debug=False, use_reloader=False)

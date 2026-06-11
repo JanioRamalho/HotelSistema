@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 
 
+# Leitura simples do .env raiz para todos os servicos Flask locais.
 def project_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
@@ -21,4 +22,3 @@ def load_root_env() -> None:
         value = value.strip().strip('"').strip("'")
         if key and key not in os.environ:
             os.environ[key] = value
-

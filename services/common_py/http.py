@@ -1,6 +1,7 @@
 from flask import jsonify
 
 
+# Helper HTTP comum para manter CORS e formato JSON iguais nos microservicos.
 def add_cors_headers(response, allowed_headers="content-type,authorization,x-user-id,x-file-name"):
     response.headers["access-control-allow-origin"] = "*"
     response.headers["access-control-allow-methods"] = "GET,POST,PUT,PATCH,DELETE,OPTIONS"
@@ -12,4 +13,3 @@ def json_response(payload, status=200):
     response = jsonify(payload)
     response.status_code = status
     return add_cors_headers(response)
-

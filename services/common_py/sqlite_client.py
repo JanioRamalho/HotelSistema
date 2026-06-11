@@ -6,6 +6,8 @@ import time
 from .env import project_root
 
 
+# Helper compartilhado de banco local.
+# Inicializa schema/seed e entrega conexoes SQLite padronizadas para os servicos.
 TRANSLATED_TABLES = [
     "transacoes_carteira",
     "favoritos",
@@ -59,6 +61,7 @@ def seed_path() -> Path:
 
 
 def connect() -> sqlite3.Connection:
+    # WAL e busy_timeout ajudam varios servicos locais a acessarem o mesmo SQLite.
     conn = sqlite3.connect(database_path(), timeout=5)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
@@ -79,6 +82,7 @@ def _table_has_column(conn: sqlite3.Connection, table_name: str, column_name: st
 
 
 def _prepare_translated_schema(conn: sqlite3.Connection) -> None:
+    # Migra bancos antigos com nomes de colunas legados sem apagar dados do usuario.
     if not _table_exists(conn, "hoteis") or _table_has_column(conn, "hoteis", "estado"):
         return
 
@@ -93,6 +97,7 @@ def _prepare_translated_schema(conn: sqlite3.Connection) -> None:
 
 
 def initialize_database() -> None:
+    # Garante que todo servico suba com schema e dados iniciais prontos.
     if not schema_path().exists():
         raise FileNotFoundError(f"Schema SQL nao encontrado em {schema_path()}")
 
