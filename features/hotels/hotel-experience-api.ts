@@ -11,6 +11,11 @@ export type HotelSessionUser = {
   email: string
 }
 
+export type HotelSession = {
+  user: HotelSessionUser
+  token: string
+}
+
 export type DemoBooking = {
   id: string
   user_id: string
@@ -41,6 +46,45 @@ export type HotelGeolocation = {
 }
 
 export type CreateDemoBookingInput = {
+  hotel?: {
+    id: string
+    name: string
+    slug: string
+    description: string
+    shortDescription: string
+    address: string
+    city: string
+    state: string
+    country: string
+    zipCode: string
+    latitude: number
+    longitude: number
+    stars: number
+    rating: number
+    reviewCount: number
+    priceFrom: number
+    policies: {
+      checkIn: string
+      checkOut: string
+      cancellation: string
+      pets: string
+      children: string
+    }
+    contact: {
+      phone: string
+      email: string
+      website?: string
+    }
+  }
+  room?: {
+    id: string
+    name: string
+    description: string
+    category: string
+    price: number
+    capacity: number
+    size: number
+  }
   roomId: string
   checkIn: string
   checkOut: string
@@ -70,16 +114,16 @@ export type RegisterPasswordInput = {
 }
 
 type AuthenticatedRequestInit = RequestInit & {
-  userId?: string
+  token?: string
 }
 
 async function fetchJson<T>(path: string, init?: AuthenticatedRequestInit): Promise<T> {
-  const { userId, ...requestInit } = init || {}
+  const { token, ...requestInit } = init || {}
   const response = await fetch(`${apiGatewayUrl}${path}`, {
     headers: {
       accept: 'application/json',
       'content-type': 'application/json',
-      ...(userId ? { 'x-user-id': userId } : {}),
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
       ...requestInit.headers,
     },
     ...requestInit,
@@ -109,29 +153,29 @@ export async function registerWithPassword(input: RegisterPasswordInput): Promis
   return response.data
 }
 
-export async function confirmPasswordRegister(email: string, code: string): Promise<HotelSessionUser> {
-  const response = await fetchJson<{ data: { user: HotelSessionUser; walletBonusCents: number } }>('/api/auth/password/register/confirm', {
+export async function confirmPasswordRegister(email: string, code: string): Promise<HotelSession> {
+  const response = await fetchJson<{ data: { user: HotelSessionUser; token: string; walletBonusCents: number } }>('/api/auth/password/register/confirm', {
     method: 'POST',
     body: JSON.stringify({ email, code }),
   })
-  return response.data.user
+  return { user: response.data.user, token: response.data.token }
 }
 
-export async function loginWithPassword(email: string, password: string): Promise<HotelSessionUser> {
-  const response = await fetchJson<{ data: { user: HotelSessionUser; walletBonusCents: number } }>('/api/auth/password/login', {
+export async function loginWithPassword(email: string, password: string): Promise<HotelSession> {
+  const response = await fetchJson<{ data: { user: HotelSessionUser; token: string; walletBonusCents: number } }>('/api/auth/password/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   })
-  return response.data.user
+  return { user: response.data.user, token: response.data.token }
 }
 
-export async function fetchDemoWallet(userId: string, signal?: AbortSignal): Promise<DemoWallet> {
-  const response = await fetchJson<{ data: DemoWallet }>('/api/wallet/me', { signal, userId })
+export async function fetchDemoWallet(token: string, signal?: AbortSignal): Promise<DemoWallet> {
+  const response = await fetchJson<{ data: DemoWallet }>('/api/wallet/me', { signal, token })
   return response.data
 }
 
-export async function fetchDemoBookings(userId: string, signal?: AbortSignal): Promise<DemoBooking[]> {
-  const response = await fetchJson<{ data: DemoBooking[] }>('/api/bookings/me', { signal, userId })
+export async function fetchDemoBookings(token: string, signal?: AbortSignal): Promise<DemoBooking[]> {
+  const response = await fetchJson<{ data: DemoBooking[] }>('/api/bookings/me', { signal, token })
   return response.data
 }
 
@@ -140,10 +184,18 @@ export async function fetchHotelGeolocation(slug: string, signal?: AbortSignal):
   return response.data
 }
 
-export async function createDemoBooking(input: CreateDemoBookingInput, userId: string) {
+export async function createDemoBooking(input: CreateDemoBookingInput, token: string) {
   return fetchJson<{ data: { bookingId: string; totalCents: number; remainingBalanceCents: number } }>('/api/bookings', {
     method: 'POST',
-    userId,
+    token,
     body: JSON.stringify(input),
   })
+}
+
+export async function cancelDemoBooking(bookingId: string, token: string) {
+  const response = await fetchJson<{ data: { bookingId: string; status: string; refundedCents: number; balanceCents: number | null } }>(`/api/bookings/${encodeURIComponent(bookingId)}/cancel`, {
+    method: 'PATCH',
+    token,
+  })
+  return response.data
 }
