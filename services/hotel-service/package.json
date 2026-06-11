@@ -4,12 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node src/index.js",
-    "dev:instance1": "node scripts/start-instance-1.js",
-    "dev:instance2": "node scripts/start-instance-2.js",
-    "start": "node src/index.js"
-  },
-  "engines": {
-    "node": ">=20"
+    "dev": "python src/server.py",
+    "dev:instance1": "python scripts/start_instance_1.py",
+    "dev:instance2": "python scripts/start_instance_2.py",
+    "start": "python src/server.py"
   }
 }

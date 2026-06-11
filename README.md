@@ -1,6 +1,6 @@
 # Viajei
 
-Sistema academico de hoteis com frontend Next.js, API Gateway, microsservicos Node.js, validacao em Python e banco SQLite local.
+Sistema academico de hoteis com frontend Next.js, API Gateway, microsservicos Flask e banco SQLite local.
 
 O fluxo principal esta organizado para manter estavel:
 
@@ -93,7 +93,7 @@ Os hoteis gerados sao persistidos no banco local e aparecem automaticamente no s
 As imagens principais sao atribuidas pelo `hotel-service` a partir de um conjunto unico versionado em:
 
 ```txt
-services/hotel-service/src/data/unique-hotel-images.js
+services/hotel-service/src/data/unique-hotel-images.json
 ```
 
 Essa regra evita que o frontend precise improvisar imagens e mantem cada hotel com uma imagem principal previsivel.
@@ -102,7 +102,7 @@ Essa regra evita que o frontend precise improvisar imagens e mantem cada hotel c
 
 Os dados falsos de hotel ficaram isolados em:
 
-- `services/hotel-service/src/demo/fake-hotel-provider.js`
+- `services/hotel-service/src/fake_hotel_provider.py`
 
 Esse local foi criado para separar a logica de demonstracao da logica real do servico, sem alterar o comportamento atual.
 

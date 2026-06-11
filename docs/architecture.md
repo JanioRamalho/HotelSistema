@@ -9,37 +9,37 @@ Browser
 Frontend Next.js
   |
   v
-API Gateway
+API Gateway Flask
   |-- rate limiting
   |-- proxy para servicos internos
   |-- logs estruturados
   |-- metricas de carga
   |
-  +-- Hotel Service :4101
+  +-- Hotel Service Flask :4101
   |     v
   |   SQLite local
   |
-  +-- Auth Service :4201
+  +-- Auth Service Flask :4201
   |     |-- login com e-mail e senha
   |     |-- codigo enviado por e-mail
   |     |-- cria a carteira bonus apos validar o codigo
   |     v
   |   SQLite local
   |
-  +-- Booking/Wallet Service :4202
+  +-- Booking/Wallet Service Flask :4202
   |     |-- saldo demo de R$ 20.000 por usuario logado
   |     |-- reserva demo
   |     |-- transacoes de carteira
   |     v
   |   SQLite local
   |
-  +-- Geolocation Service :4204
+  +-- Geolocation Service Flask :4204
   |     |-- coordenadas dos hoteis
   |     |-- base para mapa
   |     v
   |   SQLite local
   |
-  +-- Validation Service Python :4205
+  +-- Validation Service Flask :4205
         |-- CPF
         |-- CEP
         |-- data de nascimento
@@ -49,12 +49,12 @@ API Gateway
 ## Componentes
 
 - `app/` e `components/`: frontend Next.js. A interface visual permanece desacoplada da arquitetura interna.
-- `services/api-gateway`: entrada unica da API. Aplica rate limiting, registra logs e expoe metricas.
-- `services/hotel-service`: busca e detalhe de hoteis na porta `4101`.
-- `services/auth-service`: cadastro com e-mail/senha, login com e-mail/senha e codigo enviado ao e-mail da conta.
-- `services/booking-service`: carteira demo e reservas com desconto de saldo.
-- `services/geolocation-service`: consulta coordenadas do hotel para uso em mapa.
-- `services/validation-service`: microsservico Python para validar CPF, CEP, data de nascimento, telefone e dados do hospede antes da reserva.
+- `services/api-gateway`: Flask API de entrada. Aplica rate limiting, registra logs e expoe metricas.
+- `services/hotel-service`: Flask API de busca e detalhe de hoteis na porta `4101`.
+- `services/auth-service`: Flask API de cadastro com e-mail/senha, login com e-mail/senha e codigo enviado ao e-mail da conta.
+- `services/booking-service`: Flask API de carteira demo e reservas com desconto de saldo.
+- `services/geolocation-service`: Flask API de coordenadas do hotel para uso em mapa.
+- `services/validation-service`: Flask API para validar CPF, CEP, data de nascimento, telefone e dados do hospede antes da reserva.
 - `infra/database`: schema e seed do SQLite.
 
 Componentes opcionais:
@@ -114,6 +114,16 @@ Opcional:
 O gateway expõe `GET /metrics`, com total de requisicoes, bloqueios por rate limit, rotas mais acessadas, upstreams usados, erros e tempo medio.
 
 Os logs sao estruturados em JSON e mostram metodo, rota, status, duracao e upstream.
+
+## Backend Python
+
+Os servicos de backend rodam em Flask, mantendo as mesmas portas, rotas, payloads e contratos consumidos pelo frontend. O frontend Next.js permanece inalterado.
+
+Para instalar as dependencias Python:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Evolucao futura
 

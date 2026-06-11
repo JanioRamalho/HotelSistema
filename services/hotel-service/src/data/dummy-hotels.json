@@ -1,0 +1,1054 @@
+[
+  {
+    "id": "dummy-gramado-01",
+    "name": "Hotel Jardim das Hortensias",
+    "slug": "hotel-jardim-das-hortensias",
+    "description": "Hotel Jardim das Hortensias e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Gramado e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Gramado",
+    "address": "Av. Borges de Medeiros, 2500",
+    "city": "Gramado",
+    "state": "RS",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -29.3788,
+    "longitude": -50.8723,
+    "stars": 4,
+    "rating": 4.8,
+    "reviewCount": 842,
+    "priceFrom": 520,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800",
+        "alt": "Imagem de Hotel Jardim das Hortensias",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "breakfast",
+      "parking",
+      "air-conditioning",
+      "restaurant",
+      "spa"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-gramado-01-room-1",
+        "name": "Suite Hortensia",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "standard",
+        "price": 520,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-gramado-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@hotel-jardim-das-hortensias.local",
+      "website": "hotel-jardim-das-hortensias.local"
+    }
+  },
+  {
+    "id": "dummy-canela-01",
+    "name": "Pousada Vale do Caracol",
+    "slug": "pousada-vale-do-caracol",
+    "description": "Pousada Vale do Caracol e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Canela e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Canela",
+    "address": "Rua Felisberto Soares, 120",
+    "city": "Canela",
+    "state": "RS",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -29.3645,
+    "longitude": -50.8155,
+    "stars": 3,
+    "rating": 4.5,
+    "reviewCount": 326,
+    "priceFrom": 310,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
+        "alt": "Imagem de Pousada Vale do Caracol",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "breakfast",
+      "parking",
+      "pet-friendly"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-canela-01-room-1",
+        "name": "Quarto Aconchego",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "economic",
+        "price": 310,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-canela-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@pousada-vale-do-caracol.local",
+      "website": "pousada-vale-do-caracol.local"
+    }
+  },
+  {
+    "id": "dummy-florianopolis-01",
+    "name": "Resort Ilha Norte",
+    "slug": "resort-ilha-norte",
+    "description": "Resort Ilha Norte e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Florianopolis e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Florianopolis",
+    "address": "Rod. Jornalista Mauricio Sirotsky Sobrinho, 6000",
+    "city": "Florianopolis",
+    "state": "SC",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -27.4386,
+    "longitude": -48.3927,
+    "stars": 5,
+    "rating": 4.9,
+    "reviewCount": 1331,
+    "priceFrom": 980,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800",
+        "alt": "Imagem de Resort Ilha Norte",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "pool",
+      "gym",
+      "spa",
+      "restaurant",
+      "bar",
+      "beach-access"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-florianopolis-01-room-1",
+        "name": "Suite Vista Mar",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "luxury",
+        "price": 980,
+        "capacity": 4,
+        "size": 42,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-florianopolis-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@resort-ilha-norte.local",
+      "website": "resort-ilha-norte.local"
+    }
+  },
+  {
+    "id": "dummy-foz-01",
+    "name": "Hotel Cataratas Prime",
+    "slug": "hotel-cataratas-prime",
+    "description": "Hotel Cataratas Prime e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Foz do Iguacu e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Foz do Iguacu",
+    "address": "Av. das Cataratas, 2000",
+    "city": "Foz do Iguacu",
+    "state": "PR",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -25.5478,
+    "longitude": -54.5882,
+    "stars": 4,
+    "rating": 4.7,
+    "reviewCount": 912,
+    "priceFrom": 470,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800",
+        "alt": "Imagem de Hotel Cataratas Prime",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "pool",
+      "parking",
+      "restaurant",
+      "breakfast"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-foz-01-room-1",
+        "name": "Apartamento Cataratas",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "standard",
+        "price": 470,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-foz-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@hotel-cataratas-prime.local",
+      "website": "hotel-cataratas-prime.local"
+    }
+  },
+  {
+    "id": "dummy-sao-paulo-01",
+    "name": "Business Hotel Paulista",
+    "slug": "business-hotel-paulista",
+    "description": "Business Hotel Paulista e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Sao Paulo e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Sao Paulo",
+    "address": "Av. Paulista, 1800",
+    "city": "Sao Paulo",
+    "state": "SP",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -23.5617,
+    "longitude": -46.6561,
+    "stars": 4,
+    "rating": 4.6,
+    "reviewCount": 1502,
+    "priceFrom": 620,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800",
+        "alt": "Imagem de Business Hotel Paulista",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "gym",
+      "restaurant",
+      "business-center",
+      "parking"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-sao-paulo-01-room-1",
+        "name": "Quarto Executivo",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "standard",
+        "price": 620,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-sao-paulo-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@business-hotel-paulista.local",
+      "website": "business-hotel-paulista.local"
+    }
+  },
+  {
+    "id": "dummy-campos-01",
+    "name": "Chale Alto da Serra",
+    "slug": "chale-alto-da-serra",
+    "description": "Chale Alto da Serra e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Campos do Jordao e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Campos do Jordao",
+    "address": "Rua das Araucarias, 88",
+    "city": "Campos do Jordao",
+    "state": "SP",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -22.7399,
+    "longitude": -45.5914,
+    "stars": 4,
+    "rating": 4.8,
+    "reviewCount": 704,
+    "priceFrom": 690,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1518733057094-95b53143d2a7?w=800",
+        "alt": "Imagem de Chale Alto da Serra",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "breakfast",
+      "spa",
+      "parking",
+      "restaurant"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-campos-01-room-1",
+        "name": "Chale Premium",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "luxury",
+        "price": 690,
+        "capacity": 2,
+        "size": 42,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-campos-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@chale-alto-da-serra.local",
+      "website": "chale-alto-da-serra.local"
+    }
+  },
+  {
+    "id": "dummy-salvador-01",
+    "name": "Hotel Pelourinho Boutique",
+    "slug": "hotel-pelourinho-boutique",
+    "description": "Hotel Pelourinho Boutique e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Salvador e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Salvador",
+    "address": "Largo do Pelourinho, 45",
+    "city": "Salvador",
+    "state": "BA",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -12.9718,
+    "longitude": -38.5087,
+    "stars": 4,
+    "rating": 4.7,
+    "reviewCount": 618,
+    "priceFrom": 430,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+        "alt": "Imagem de Hotel Pelourinho Boutique",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "breakfast",
+      "restaurant",
+      "bar",
+      "concierge"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-salvador-01-room-1",
+        "name": "Suite Colonial",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "standard",
+        "price": 430,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-salvador-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@hotel-pelourinho-boutique.local",
+      "website": "hotel-pelourinho-boutique.local"
+    }
+  },
+  {
+    "id": "dummy-recife-01",
+    "name": "Boa Viagem Beach Hotel",
+    "slug": "boa-viagem-beach-hotel",
+    "description": "Boa Viagem Beach Hotel e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Recife e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Recife",
+    "address": "Av. Boa Viagem, 1500",
+    "city": "Recife",
+    "state": "PE",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -8.1176,
+    "longitude": -34.8965,
+    "stars": 4,
+    "rating": 4.5,
+    "reviewCount": 812,
+    "priceFrom": 390,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800",
+        "alt": "Imagem de Boa Viagem Beach Hotel",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "pool",
+      "breakfast",
+      "beach-access",
+      "air-conditioning"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-recife-01-room-1",
+        "name": "Quarto Vista Praia",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "standard",
+        "price": 390,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-recife-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@boa-viagem-beach-hotel.local",
+      "website": "boa-viagem-beach-hotel.local"
+    }
+  },
+  {
+    "id": "dummy-fortaleza-01",
+    "name": "Praia de Iracema Palace",
+    "slug": "praia-de-iracema-palace",
+    "description": "Praia de Iracema Palace e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Fortaleza e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Fortaleza",
+    "address": "Av. Beira Mar, 900",
+    "city": "Fortaleza",
+    "state": "CE",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -3.7214,
+    "longitude": -38.5124,
+    "stars": 5,
+    "rating": 4.8,
+    "reviewCount": 1220,
+    "priceFrom": 760,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800",
+        "alt": "Imagem de Praia de Iracema Palace",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "pool",
+      "gym",
+      "restaurant",
+      "bar",
+      "beach-access"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-fortaleza-01-room-1",
+        "name": "Suite Beira Mar",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "luxury",
+        "price": 760,
+        "capacity": 4,
+        "size": 42,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-fortaleza-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@praia-de-iracema-palace.local",
+      "website": "praia-de-iracema-palace.local"
+    }
+  },
+  {
+    "id": "dummy-maceio-01",
+    "name": "Ponta Verde Resort",
+    "slug": "ponta-verde-resort",
+    "description": "Ponta Verde Resort e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Maceio e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Maceio",
+    "address": "Rua Engenheiro Mario de Gusmao, 300",
+    "city": "Maceio",
+    "state": "AL",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -9.6658,
+    "longitude": -35.7048,
+    "stars": 4,
+    "rating": 4.6,
+    "reviewCount": 677,
+    "priceFrom": 540,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1455587734955-081b22074882?w=800",
+        "alt": "Imagem de Ponta Verde Resort",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "pool",
+      "breakfast",
+      "restaurant",
+      "beach-access"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-maceio-01-room-1",
+        "name": "Apartamento Ponta Verde",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "standard",
+        "price": 540,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-maceio-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@ponta-verde-resort.local",
+      "website": "ponta-verde-resort.local"
+    }
+  },
+  {
+    "id": "dummy-manaus-01",
+    "name": "Amazon Riverside Lodge",
+    "slug": "amazon-riverside-lodge",
+    "description": "Amazon Riverside Lodge e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Manaus e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Manaus",
+    "address": "Estrada do Turismo, 1000",
+    "city": "Manaus",
+    "state": "AM",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -3.119,
+    "longitude": -60.0217,
+    "stars": 4,
+    "rating": 4.7,
+    "reviewCount": 489,
+    "priceFrom": 610,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1495365200479-c4ed1d35e1aa?w=800",
+        "alt": "Imagem de Amazon Riverside Lodge",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "restaurant",
+      "bar",
+      "concierge",
+      "breakfast"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-manaus-01-room-1",
+        "name": "Suite Amazonia",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "standard",
+        "price": 610,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-manaus-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@amazon-riverside-lodge.local",
+      "website": "amazon-riverside-lodge.local"
+    }
+  },
+  {
+    "id": "dummy-brasilia-01",
+    "name": "Hotel Monumental Brasilia",
+    "slug": "hotel-monumental-brasilia",
+    "description": "Hotel Monumental Brasilia e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Brasilia e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Brasilia",
+    "address": "Setor Hoteleiro Norte, Quadra 5",
+    "city": "Brasilia",
+    "state": "DF",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -15.789,
+    "longitude": -47.8828,
+    "stars": 4,
+    "rating": 4.4,
+    "reviewCount": 743,
+    "priceFrom": 450,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1568084680786-a84f91d1153c?w=800",
+        "alt": "Imagem de Hotel Monumental Brasilia",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "gym",
+      "business-center",
+      "parking",
+      "restaurant"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-brasilia-01-room-1",
+        "name": "Quarto Executivo",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "standard",
+        "price": 450,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-brasilia-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 4,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@hotel-monumental-brasilia.local",
+      "website": "hotel-monumental-brasilia.local"
+    }
+  },
+  {
+    "id": "dummy-bonito-01",
+    "name": "Pousada Rio Cristalino",
+    "slug": "pousada-rio-cristalino",
+    "description": "Pousada Rio Cristalino e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Bonito e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Bonito",
+    "address": "Rua das Aguas Claras, 77",
+    "city": "Bonito",
+    "state": "MS",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -21.1261,
+    "longitude": -56.4836,
+    "stars": 3,
+    "rating": 4.6,
+    "reviewCount": 355,
+    "priceFrom": 280,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
+        "alt": "Imagem de Pousada Rio Cristalino",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "breakfast",
+      "parking",
+      "pool"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-bonito-01-room-1",
+        "name": "Quarto Natureza",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "economic",
+        "price": 280,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-bonito-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@pousada-rio-cristalino.local",
+      "website": "pousada-rio-cristalino.local"
+    }
+  },
+  {
+    "id": "dummy-belo-horizonte-01",
+    "name": "Savassi Design Hotel",
+    "slug": "savassi-design-hotel",
+    "description": "Savassi Design Hotel e uma hospedagem ficticia criada para demonstracao do Viajei, com boa localizacao em Belo Horizonte e estrutura para lazer e trabalho.",
+    "shortDescription": "Hospedagem completa em Belo Horizonte",
+    "address": "Rua Pernambuco, 1200",
+    "city": "Belo Horizonte",
+    "state": "MG",
+    "country": "Brasil",
+    "zipCode": "00000-000",
+    "latitude": -19.9386,
+    "longitude": -43.9369,
+    "stars": 4,
+    "rating": 4.5,
+    "reviewCount": 568,
+    "priceFrom": 360,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=800",
+        "alt": "Imagem de Savassi Design Hotel",
+        "category": "exterior"
+      }
+    ],
+    "amenities": [
+      "wifi",
+      "gym",
+      "restaurant",
+      "bar",
+      "business-center"
+    ],
+    "rooms": [
+      {
+        "id": "dummy-belo-horizonte-01-room-1",
+        "name": "Quarto Design",
+        "description": "Quarto confortavel com cama casal, ar-condicionado e banheiro privativo.",
+        "category": "standard",
+        "price": 360,
+        "capacity": 2,
+        "size": 28,
+        "amenities": [
+          "wifi",
+          "air-conditioning",
+          "room-service"
+        ],
+        "images": [
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800"
+        ],
+        "available": true
+      }
+    ],
+    "reviews": [
+      {
+        "id": "dummy-review-belo-horizonte-01",
+        "userId": "",
+        "userName": "Hospede verificado",
+        "rating": 5,
+        "comment": "Hospedagem excelente, equipe atenciosa e localizacao muito boa.",
+        "date": "2026-04-12",
+        "stayDate": "2026-04-06"
+      }
+    ],
+    "policies": {
+      "checkIn": "14:00",
+      "checkOut": "12:00",
+      "cancellation": "Cancelamento gratuito ate 48h antes do check-in",
+      "pets": "Consulte a politica de pets com o hotel",
+      "children": "Criancas de todas as idades sao bem-vindas"
+    },
+    "contact": {
+      "phone": "(11) 4000-0000",
+      "email": "reservas@savassi-design-hotel.local",
+      "website": "savassi-design-hotel.local"
+    }
+  }
+]
