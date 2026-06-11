@@ -164,11 +164,11 @@ export function HeroSection() {
 
         <div className="mt-8 flex flex-wrap justify-center gap-8 text-center text-white/90">
           <div>
-            <p className="text-2xl font-bold">500+</p>
+            <p className="text-2xl font-bold">30+</p>
             <p className="text-sm">Hotéis</p>
           </div>
           <div>
-            <p className="text-2xl font-bold">50+</p>
+            <p className="text-2xl font-bold">17+</p>
             <p className="text-sm">Cidades</p>
           </div>
           <div>

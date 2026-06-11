@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { CalendarCheck, Heart, LogOut, Menu, Settings, User, UserRound, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { HotelSessionUser } from '@/features/hotels/hotel-experience-api'
+import type { HotelSession, HotelSessionUser } from '@/features/hotels/hotel-experience-api'
 
 const sessionStorageKey = 'hotel-sistema-session-user'
 
@@ -19,7 +19,8 @@ export function Header() {
     if (!storedUser) return
 
     try {
-      setSessionUser(JSON.parse(storedUser) as HotelSessionUser)
+      const parsed = JSON.parse(storedUser) as HotelSession | HotelSessionUser
+      setSessionUser('user' in parsed ? parsed.user : parsed)
     } catch {
       window.localStorage.removeItem(sessionStorageKey)
     }
