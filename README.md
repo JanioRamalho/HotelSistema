@@ -1,83 +1,82 @@
 # Viajei
 
-Sistema academico de hoteis com frontend Next.js, API Gateway, microsservicos Flask e banco SQLite local.
+Sistema academico de hoteis com frontend Next.js, API Gateway em Flask, microsservicos Flask e banco SQLite local.
 
-O fluxo principal esta organizado para manter estavel:
+O projeto cobre o fluxo principal de uma plataforma de hospedagens:
 
-- pagina inicial, busca e detalhe de hoteis;
-- cadastro/login;
-- carteira e reserva demo;
-- imagens de hoteis com atribuicao exclusiva e previsivel.
+- listagem, busca e detalhe de hoteis;
+- cadastro, confirmacao por e-mail e login;
+- carteira demo com saldo inicial;
+- reserva e cancelamento com estorno;
+- imagens principais de hoteis com atribuicao previsivel.
+
+## Sumario
+
+- [Arquitetura](#arquitetura)
+- [Tecnologias](#tecnologias)
+- [Como rodar](#como-rodar)
+- [Comandos uteis](#comandos-uteis)
+- [Portas dos servicos](#portas-dos-servicos)
+- [Endpoints uteis](#endpoints-uteis)
+- [Fluxos principais](#fluxos-principais)
+- [Banco de dados](#banco-de-dados)
+- [E-mail de verificacao](#e-mail-de-verificacao)
+- [Padroes do projeto](#padroes-do-projeto)
+- [Observacoes](#observacoes)
 
 ## Arquitetura
 
-A arquitetura detalhada do sistema fica em [docs/architecture.md](docs/architecture.md).
+A descricao completa da arquitetura esta em [docs/architecture.md](docs/architecture.md).
 
-## Como Rodar
+Em resumo:
 
-## O que mudou na refatoracao
+- o frontend consome apenas o API Gateway em `/api/*`;
+- o API Gateway centraliza rate limiting, logs, metricas, health checks e proxy para os servicos;
+- os microsservicos mantem responsabilidades separadas para hoteis, autenticacao, reservas, geolocalizacao, validacao e media;
+- o `hotel-service` pode rodar em duas instancias para demonstrar balanceamento round-robin;
+- o banco local da versao academica e SQLite.
 
-O frontend continua em Next.js/React. A mudanca foi concentrada no backend.
+## Tecnologias
 
-- O API Gateway saiu de Node.js e agora roda em Flask em `services/api-gateway/src/server.py`.
-- Os servicos `hotel-service`, `auth-service`, `booking-service`, `geolocation-service` e `media-service` tambem foram migrados para Flask.
-- O `validation-service`, que ja era Python, agora tambem usa Flask em `services/validation-service/src/app.py`.
-- Os contratos HTTP foram mantidos: mesmas portas, rotas principais, payloads e respostas esperadas pelo frontend.
-- O rate limiting, health check, metricas, proxy para upstreams e logs estruturados continuam no API Gateway.
-- O gateway agora tambem expoe health check agregado em `/health/services`.
-- O `dev:all` sobe duas instancias do `hotel-service` para demonstrar balanceamento round-robin.
-- O fluxo de login/cadastro agora retorna JWT Bearer usado nas rotas de carteira e reserva.
-- Os dados demo que estavam em arquivos `.js` foram convertidos para `.json`.
-- O comando unico `npm run dev:all` continua existindo, mas agora usa um runner Python em `scripts/dev_all.py`.
+- Next.js e React no frontend;
+- Flask nos servicos backend;
+- SQLite para persistencia local;
+- JWT Bearer para rotas protegidas de carteira e reserva;
+- logs estruturados em JSON no API Gateway.
 
-Arquivos principais criados ou alterados:
+## Como rodar
 
-```txt
-requirements.txt
-scripts/dev_all.py
-services/common_py/
-services/api-gateway/src/server.py
-services/hotel-service/src/server.py
-services/auth-service/src/server.py
-services/booking-service/src/server.py
-services/geolocation-service/src/server.py
-services/media-service/src/server.py
-services/validation-service/src/app.py
-```
-
-### Fluxo recomendado
-
-Instale as dependencias do frontend e do backend:
+### 1. Instalar dependencias
 
 ```bash
 npm install
 python -m pip install -r requirements.txt
 ```
 
-Use o comando unico para subir os servicos necessarios ao site:
+### 2. Subir o ambiente completo
 
 ```bash
 npm run dev:all
 ```
 
-Atencao: o comando correto tem dois-pontos. Use `npm run dev:all`, nao `npm run dev all`.
+Atencao: o comando correto tem dois-pontos: `npm run dev:all`.
 
-Depois acesse:
+### 3. Acessar a aplicacao
 
 ```txt
 http://localhost:3000
 ```
 
-Para conferir se o projeto esta saudavel:
+### 4. Conferir a saude do projeto
 
 ```bash
 npm run lint
 npm run build
 ```
 
-### Fluxo manual
+## Comandos uteis
 
-Se quiser rodar servicos individualmente:
+### Rodar servicos individualmente
 
 ```bash
 npm run dev:hotel-service:1
@@ -90,59 +89,93 @@ npm run dev:gateway
 npm run dev
 ```
 
-Servicos opcionais que nao entram no fluxo visual principal:
+### Rodar servico opcional de media
 
 ```bash
 npm run dev:media-service
 ```
 
-O `dev:all` ja configura `HOTEL_SERVICE_URLS=http://localhost:4101,http://localhost:4102` para demonstrar balanceamento. No fluxo manual, configure essa variavel antes de subir o gateway se quiser usar as duas instancias.
+O `dev:all` ja configura `HOTEL_SERVICE_URLS=http://localhost:4101,http://localhost:4102` para demonstrar balanceamento. No fluxo manual, configure essa variavel antes de subir o gateway se quiser usar as duas instancias do `hotel-service`.
 
-### Se der erro ao rodar
+## Portas dos servicos
 
-1. Confirme se o Python esta acessivel:
+| Porta | Servico |
+| --- | --- |
+| 3000 | Frontend Next.js |
+| 4100 | API Gateway |
+| 4101 | Hotel Service |
+| 4102 | Hotel Service, segunda instancia |
+| 4201 | Auth Service |
+| 4202 | Booking/Wallet Service |
+| 4204 | Geolocation Service |
+| 4205 | Validation Service |
 
-```bash
-python --version
-```
-
-2. Instale o Flask:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-3. Se alguma porta ja estiver ocupada, feche o processo anterior ou rode apenas o servico que falta. As portas usadas sao:
-
-```txt
-3000 frontend
-4100 api-gateway
-4101 hotel-service
-4102 hotel-service segunda instancia
-4201 auth-service
-4202 booking-service
-4204 geolocation-service
-4205 validation-service
-```
-
-4. Se estiver no Windows e o erro mencionar que nao foi possivel executar um programa, atualize a branch `teste`; o runner Python resolve automaticamente o caminho do `npm.cmd`.
-
-## Endpoints Uteis
+## Endpoints uteis
 
 ```txt
-http://localhost:4100/health
-http://localhost:4100/health/services
-http://localhost:4100/metrics
-http://localhost:4100/api/hotels
-http://localhost:4100/api/hotels/resort-praia-do-forte
-POST http://localhost:4100/api/hotels/generate
-GET http://localhost:4100/api/bookings/me
-POST http://localhost:4100/api/bookings
-PATCH http://localhost:4100/api/bookings/:id/cancel
-http://localhost:4205/health
+GET    http://localhost:4100/health
+GET    http://localhost:4100/health/services
+GET    http://localhost:4100/metrics
+GET    http://localhost:4100/api/hotels
+GET    http://localhost:4100/api/hotels/resort-praia-do-forte
+POST   http://localhost:4100/api/hotels/generate
+GET    http://localhost:4100/api/bookings/me
+POST   http://localhost:4100/api/bookings
+PATCH  http://localhost:4100/api/bookings/:id/cancel
+GET    http://localhost:4205/health
 ```
 
-## Gerar Hoteis Automaticamente
+## Fluxos principais
+
+### Cadastro
+
+```txt
+usuario preenche cadastro
+  -> auth-service valida os dados
+  -> salva em cadastros_pendentes
+  -> envia codigo por e-mail
+  -> usuario confirma o codigo
+  -> usuario oficial e criado em usuarios
+  -> carteira demo e liberada
+```
+
+Se o envio do e-mail falhar, a conta nao fica criada em `usuarios`.
+
+### Login e autenticacao
+
+Depois do login ou da confirmacao de cadastro, o `auth-service` retorna um JWT Bearer:
+
+```json
+{
+  "data": {
+    "user": {},
+    "token": "...",
+    "walletBonusCents": 2000000
+  }
+}
+```
+
+O frontend guarda o token na sessao local e envia nas rotas protegidas:
+
+```txt
+Authorization: Bearer <token>
+```
+
+### Reserva demo
+
+```txt
+usuario escolhe um hotel
+  -> seleciona um quarto
+  -> acessa /hotel/:slug/quarto/:roomId
+  -> informa datas e dados do hospede
+  -> sistema calcula noites x diaria
+  -> usuario paga com saldo demo
+  -> reserva aparece em /minhas-reservas
+```
+
+O cancelamento altera o status para `cancelled` e estorna o valor para a carteira demo.
+
+## Gerar hoteis automaticamente
 
 Com o API Gateway e o Hotel Service rodando, gere hoteis falsos completos no SQLite:
 
@@ -160,25 +193,15 @@ curl -X POST http://localhost:4100/api/hotels/generate \
   -d "{\"count\": 3, \"state\": \"RJ\"}"
 ```
 
-Os hoteis gerados sao persistidos no banco local e aparecem automaticamente no site pela rota `/api/hotels`.
-
-As imagens principais sao atribuidas pelo `hotel-service` a partir de um conjunto unico versionado em:
+As imagens principais sao atribuidas pelo `hotel-service` a partir de:
 
 ```txt
 services/hotel-service/src/data/unique-hotel-images.json
 ```
 
-Essa regra evita que o frontend precise improvisar imagens e mantem cada hotel com uma imagem principal previsivel.
+Essa regra evita improviso no frontend e mantem cada hotel com uma imagem principal previsivel.
 
-## Seed e dados de demonstracao
-
-Os dados falsos de hotel ficaram isolados em:
-
-- `services/hotel-service/src/fake_hotel_provider.py`
-
-Esse local foi criado para separar a logica de demonstracao da logica real do servico, sem alterar o comportamento atual.
-
-## Banco
+## Banco de dados
 
 O schema e o seed ficam em:
 
@@ -189,45 +212,17 @@ infra/database/seed-hotels.sql
 
 O arquivo `hoteis.db` e gerado localmente a partir desses SQLs.
 
-## Padrões do projeto
+Os dados falsos de hotel ficam isolados em:
 
-### 1. Nomes
+```txt
+services/hotel-service/src/fake_hotel_provider.py
+```
 
-- Arquivos e pastas em `kebab-case`
-- Variaveis e funcoes em `camelCase`
-- Componentes React em `PascalCase`
-- Servicos e ambientes com nomes claros e consistentes
-
-### 2. Variaveis de ambiente
-
-- Variaveis sempre em `UPPER_SNAKE_CASE`
-- Nomes com contexto do servico quando aplicavel
-- Exemplo: `HOTEL_SERVICE_URLS`, `PORT`, `SERVICE_NAME`, `EMAIL_PROVIDER`
-
-### 3. Logs
-
-- Logs em formato JSON estruturado
-- Evitar mensagens soltas sem contexto
-- Preferir dados consistentes como `service`, `event`, `status`, `path` e `durationMs`
-
-### 4. Contrato frontend e gateway
-
-- O frontend deve consumir apenas o gateway em `/api/*`
-- O gateway e a porta de entrada unica da API
-- Os microsservicos continuam internos e nao devem ser chamados diretamente pelo frontend
-
-## Observacoes
-
-- O `hotel-service` combina SQLite com dados demo internos para popular varios estados e cidades.
-- O `validation-service` e feito em Python e valida CPF, CEP, telefone, e-mail e data de nascimento.
-- O envio real de e-mail depende das variaveis SMTP ou Resend configuradas no `.env`.
-- O `media-service` existe como recurso opcional de upload local, mas nao e necessario para navegar, buscar, abrir detalhes ou reservar hoteis.
-
-## Envio Real De Codigo Por E-mail
+## E-mail de verificacao
 
 Para desenvolvimento local sem comprar dominio, use SMTP com senha de app do Gmail ou outro provedor.
 
-No `.env`:
+Exemplo de `.env`:
 
 ```env
 EMAIL_PROVIDER=console
@@ -241,7 +236,7 @@ EMAIL_FROM=Viajei <seuemail@gmail.com>
 
 Com SMTP configurado, o `auth-service` envia o codigo de verificacao por e-mail real. Se SMTP nao estiver configurado, o codigo aparece no terminal do `auth-service`.
 
-Para usar Resend de proposito, configure:
+Para usar Resend:
 
 ```env
 EMAIL_PROVIDER=resend
@@ -250,54 +245,36 @@ RESEND_API_KEY=sua_chave_resend
 
 Sem dominio verificado, o Resend pode bloquear envios para e-mails diferentes do dono da conta.
 
-## Fluxo De Cadastro
+## Padroes do projeto
 
-O cadastro usa pre-cadastro:
+### Nomes
 
-```txt
-usuario preenche cadastro
-  -> auth-service valida os dados
-  -> salva em cadastros_pendentes
-  -> envia codigo por e-mail
-  -> usuario confirma o codigo
-  -> usuario oficial e criado em usuarios
-  -> carteira demo e liberada
-```
+- arquivos e pastas em `kebab-case`;
+- variaveis e funcoes em `camelCase`;
+- componentes React em `PascalCase`;
+- servicos e ambientes com nomes claros e consistentes.
 
-Assim, se o envio do e-mail falhar, a conta nao fica criada em `usuarios`.
+### Variaveis de ambiente
 
-## Fluxo De Reserva Demo
+- variaveis em `UPPER_SNAKE_CASE`;
+- nomes com contexto do servico quando aplicavel;
+- exemplos: `HOTEL_SERVICE_URLS`, `PORT`, `SERVICE_NAME`, `EMAIL_PROVIDER`.
 
-```txt
-usuario escolhe um hotel
-  -> seleciona um quarto
-  -> acessa /hotel/:slug/quarto/:roomId
-  -> informa datas e dados do hospede
-  -> sistema calcula noites x diaria
-  -> usuario paga com saldo demo
-  -> reserva aparece em /minhas-reservas
-```
+### Logs
 
-O cancelamento da reserva altera o status para `cancelled` e estorna o valor para a carteira demo.
+- logs em JSON estruturado;
+- mensagens com contexto;
+- campos preferenciais: `service`, `event`, `status`, `path` e `durationMs`.
 
-## Autenticacao Com JWT
+### Contrato frontend e gateway
 
-Depois do login ou da confirmacao de cadastro, o `auth-service` retorna:
+- o frontend consome apenas o gateway em `/api/*`;
+- o gateway e a porta de entrada unica da API;
+- os microsservicos internos nao devem ser chamados diretamente pelo frontend.
 
-```json
-{
-  "data": {
-    "user": {},
-    "token": "...",
-    "walletBonusCents": 2000000
-  }
-}
-```
+## Observacoes
 
-O frontend guarda esse token na sessao local e envia nas rotas protegidas:
-
-```txt
-Authorization: Bearer <token>
-```
-
-As rotas de carteira e reserva no `booking-service` validam esse JWT antes de acessar dados do usuario.
+- O `media-service` e opcional e nao e necessario para navegar, buscar, abrir detalhes ou reservar hoteis.
+- O `validation-service` valida CPF, CEP, telefone, e-mail, data de nascimento e dados do hospede.
+- O envio real de e-mail depende das variaveis SMTP ou Resend configuradas no `.env`.
+- Se estiver no Windows e houver erro ao executar um programa, use a branch atualizada; o runner Python resolve automaticamente o caminho do `npm.cmd`.
