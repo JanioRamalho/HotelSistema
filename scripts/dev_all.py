@@ -155,7 +155,7 @@ def build_command(item):
 def start_command(item):
     port = item.get("port")
     if port and is_port_open(port):
-        print(f"[skip] {item['name']:<20} already running at {service_url(item)}", flush=True)
+        print(f"[pular] {item['name']:<20} já está em execução em {service_url(item)}", flush=True)
         return
 
     command = build_command(item)
@@ -164,15 +164,18 @@ def start_command(item):
         env = {**os.environ, **item.get("env", {})}
     if env is not None:
         env["PYTHONUNBUFFERED"] = "1"
+        env.setdefault("LANG", "pt_BR.UTF-8")
+        env.setdefault("LC_ALL", "pt_BR.UTF-8")
+        env.setdefault("LANGUAGE", "pt_BR:pt")
 
-    print(f"[start] {item['name']:<20} {service_url(item)}", flush=True)
+    print(f"[iniciando] {item['name']:<20} {service_url(item)}", flush=True)
     child = subprocess.Popen(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
     children.append(child)
     child_names[child.pid] = item["name"]
     attach_log_threads(child, item["name"])
 
     if port and not wait_for_port(port):
-        print(f"[fail] {item['name']:<20} did not open port {port}", file=sys.stderr, flush=True)
+        print(f"[falha] {item['name']:<20} não abriu a porta {port}", file=sys.stderr, flush=True)
         shutdown(1)
 
     if port:
@@ -181,19 +184,19 @@ def start_command(item):
 
 def print_intro():
     print("")
-    print("[dev:all] starting Viajei local stack", flush=True)
-    print("[dev:all] gateway will balance hotel-service between :4101 and :4102", flush=True)
+    print("[dev:all] iniciando a stack local do Viajei", flush=True)
+    print("[dev:all] o gateway vai balancear o hotel-service entre :4101 e :4102", flush=True)
     print("")
 
 
 def print_summary():
     print("")
-    print("[ready] Viajei stack is running", flush=True)
+    print("[pronto] a stack do Viajei está em execução", flush=True)
     print("")
     print("  Frontend           http://localhost:3000")
     print("  API Gateway        http://localhost:4100")
-    print("  Services health    http://localhost:4100/health/services")
-    print("  Metrics            http://localhost:4100/metrics")
+    print("  Health dos serviços http://localhost:4100/health/services")
+    print("  Métricas           http://localhost:4100/metrics")
     print("")
     print("  hotel-service-1    http://localhost:4101")
     print("  hotel-service-2    http://localhost:4102")
@@ -202,7 +205,7 @@ def print_summary():
     print("  geolocation        http://localhost:4204")
     print("  validation         http://localhost:4205")
     print("")
-    print("[dev:all] press Ctrl+C to stop all services", flush=True)
+    print("[dev:all] pressione Ctrl+C para parar todos os serviços", flush=True)
 
 
 def main():
@@ -212,7 +215,7 @@ def main():
             start_command(item)
 
         if not children:
-            print("[dev:all] all services were already running; nothing new was started.", flush=True)
+            print("[dev:all] todos os serviços já estavam em execução; nada novo foi iniciado.", flush=True)
             return
 
         print_summary()
@@ -222,7 +225,7 @@ def main():
                 code = child.poll()
                 if code not in (None, 0):
                     name = child_names.get(child.pid, "process")
-                    print(f"[fail] {name} exited with code {code}", file=sys.stderr, flush=True)
+                    print(f"[falha] {name} encerrou com o código {code}", file=sys.stderr, flush=True)
                     shutdown(1)
             time.sleep(1)
     except KeyboardInterrupt:
