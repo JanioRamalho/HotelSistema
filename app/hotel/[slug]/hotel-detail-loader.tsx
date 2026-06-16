@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { fetchHotelBySlug } from '@/features/hotels/hotel-api-client'
@@ -82,5 +82,9 @@ export function HotelDetailLoader({ slug }: HotelDetailLoaderProps) {
     )
   }
 
-  return <HotelDetailClient hotel={hotel} />
+  return (
+    <Suspense fallback={null}>
+      <HotelDetailClient hotel={hotel} />
+    </Suspense>
+  )
 }

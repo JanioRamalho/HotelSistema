@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { RoomBookingClient } from './room-booking-client'
@@ -21,7 +22,9 @@ export default async function RoomBookingPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <RoomBookingClient slug={slug} roomId={roomId} />
+      <Suspense fallback={<main className="container mx-auto min-h-[60vh] px-4 py-10 text-sm text-muted-foreground">Carregando reserva...</main>}>
+        <RoomBookingClient slug={slug} roomId={roomId} />
+      </Suspense>
       <Footer />
     </div>
   )

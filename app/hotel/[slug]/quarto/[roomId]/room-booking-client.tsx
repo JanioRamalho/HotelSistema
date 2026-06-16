@@ -3,10 +3,11 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, CalendarDays, CheckCircle2, Loader2, LogIn, Wallet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { DatePickerField } from '@/components/ui/date-picker-field'
 import { fetchHotelBySlug } from '@/features/hotels/hotel-api-client'
 import { Hotel, Room } from '@/features/hotels/hotel-types'
 import { createDemoBooking, DemoWallet, fetchDemoWallet, HotelSession } from '@/features/hotels/hotel-experience-api'
@@ -41,6 +42,7 @@ interface Props {
 
 export function RoomBookingClient({ slug, roomId }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [hotel, setHotel] = useState<Hotel | null>(null)
   const [room, setRoom] = useState<Room | null>(null)
   const [session, setSession] = useState<HotelSession | null>(null)
@@ -60,6 +62,7 @@ export function RoomBookingClient({ slug, roomId }: Props) {
     guestZipCode: '',
     specialRequests: '',
   })
+  const today = useMemo(() => new Date().toISOString().split('T')[0], [])
 
   useEffect(() => {
     const currentSession = readSession()
@@ -74,6 +77,19 @@ export function RoomBookingClient({ slug, roomId }: Props) {
   }, [])
 
   useEffect(() => {
+    const checkIn = searchParams.get('checkin') || searchParams.get('checkIn') || ''
+    const checkOut = searchParams.get('checkout') || searchParams.get('checkOut') || ''
+    const guests = searchParams.get('guests') || ''
+
+    setForm((prev) => ({
+      ...prev,
+      checkIn: prev.checkIn || checkIn,
+      checkOut: prev.checkOut || checkOut,
+      guests: prev.guests || guests || '1',
+    }))
+  }, [searchParams])
+
+  useEffect(() => {
     const controller = new AbortController()
 
     async function load() {
@@ -83,7 +99,12 @@ export function RoomBookingClient({ slug, roomId }: Props) {
         const selectedRoom = response.data.rooms.find((item) => item.id === roomId) || null
         setHotel(response.data)
         setRoom(selectedRoom)
-        setForm((prev) => ({ ...prev, guests: String(Math.min(selectedRoom?.capacity || 1, 2)) }))
+        setForm((prev) => {
+          const capacity = selectedRoom?.capacity || 1
+          const requestedGuests = Number(prev.guests || 0)
+          const guests = requestedGuests > 0 ? Math.min(requestedGuests, capacity) : Math.min(capacity, 2)
+          return { ...prev, guests: String(guests) }
+        })
       } catch (error) {
         if (controller.signal.aborted) return
         setMessage(error instanceof Error ? error.message : 'Nao foi possivel carregar o quarto.')
@@ -247,11 +268,25 @@ export function RoomBookingClient({ slug, roomId }: Props) {
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-1 text-sm">
                 <span className="font-medium">Check-in</span>
-                <input type="date" className="h-10 w-full rounded-md border border-input bg-background px-3" value={form.checkIn} onChange={(event) => setForm((prev) => ({ ...prev, checkIn: event.target.value }))} />
+                <DatePickerField
+                  value={form.checkIn}
+                  onChange={(value) => setForm((prev) => ({
+                    ...prev,
+                    checkIn: value,
+                    checkOut: prev.checkOut && prev.checkOut <= value ? '' : prev.checkOut,
+                  }))}
+                  minDate={today}
+                  className="h-10"
+                />
               </label>
               <label className="space-y-1 text-sm">
                 <span className="font-medium">Check-out</span>
-                <input type="date" className="h-10 w-full rounded-md border border-input bg-background px-3" value={form.checkOut} onChange={(event) => setForm((prev) => ({ ...prev, checkOut: event.target.value }))} />
+                <DatePickerField
+                  value={form.checkOut}
+                  onChange={(value) => setForm((prev) => ({ ...prev, checkOut: value }))}
+                  minDate={form.checkIn || today}
+                  className="h-10"
+                />
               </label>
               <label className="space-y-1 text-sm">
                 <span className="font-medium">Hospedes</span>

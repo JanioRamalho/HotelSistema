@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   Star,
   MapPin,
@@ -49,6 +50,7 @@ import {
 } from '@/features/hotels/hotel-experience-api'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { DatePickerField } from '@/components/ui/date-picker-field'
 
 interface Props {
   hotel: Hotel
@@ -78,10 +80,12 @@ const amenityIcons: Record<Amenity, React.ReactNode> = {
 const sessionStorageKey = 'hotel-sistema-session-user'
 
 export function HotelDetailClient({ hotel }: Props) {
+  const searchParams = useSearchParams()
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [showGallery, setShowGallery] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [wallet, setWallet] = useState<DemoWallet | null>(null)
+  const [walletStatus, setWalletStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const [bookings, setBookings] = useState<DemoBooking[]>([])
   const [geolocation, setGeolocation] = useState<HotelGeolocation | null>(null)
   const [session, setSession] = useState<HotelSession | null>(null)
@@ -98,6 +102,21 @@ export function HotelDetailClient({ hotel }: Props) {
   })
   const [bookingStatus, setBookingStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [bookingMessage, setBookingMessage] = useState('')
+
+  const today = useMemo(() => new Date().toISOString().split('T')[0], [])
+
+  useEffect(() => {
+    const checkIn = searchParams.get('checkin') || searchParams.get('checkIn') || ''
+    const checkOut = searchParams.get('checkout') || searchParams.get('checkOut') || ''
+    const guests = searchParams.get('guests') || ''
+
+    setBookingForm((prev) => ({
+      ...prev,
+      checkIn: prev.checkIn || checkIn,
+      checkOut: prev.checkOut || checkOut,
+      guests: prev.guests || guests || '2',
+    }))
+  }, [searchParams])
 
   useEffect(() => {
     const storedUser = window.localStorage.getItem(sessionStorageKey)
@@ -134,6 +153,7 @@ export function HotelDetailClient({ hotel }: Props) {
   useEffect(() => {
     if (!session) {
       setWallet(null)
+      setWalletStatus('idle')
       setBookings([])
       return
     }
@@ -146,6 +166,7 @@ export function HotelDetailClient({ hotel }: Props) {
       guestEmail: prev.guestEmail || currentUser.email,
     }))
     const controller = new AbortController()
+    setWalletStatus('loading')
 
     async function loadAccountData() {
       try {
@@ -154,9 +175,11 @@ export function HotelDetailClient({ hotel }: Props) {
           fetchDemoBookings(currentSession.token, controller.signal),
         ])
         setWallet(walletData)
+        setWalletStatus('ready')
         setBookings(bookingData)
       } catch {
         setWallet(null)
+        setWalletStatus('error')
         setBookings([])
       }
     }
@@ -195,6 +218,14 @@ export function HotelDetailClient({ hotel }: Props) {
   }
 
   const walletBalance = wallet ? wallet.balance_cents / 100 : 0
+  const bookingQuery = useMemo(() => {
+    const params = new URLSearchParams()
+    if (bookingForm.checkIn) params.set('checkin', bookingForm.checkIn)
+    if (bookingForm.checkOut) params.set('checkout', bookingForm.checkOut)
+    if (bookingForm.guests) params.set('guests', bookingForm.guests)
+    const query = params.toString()
+    return query ? `?${query}` : ''
+  }, [bookingForm.checkIn, bookingForm.checkOut, bookingForm.guests])
   const selectedNights = useMemo(() => {
     if (!bookingForm.checkIn || !bookingForm.checkOut) return 0
     const start = new Date(`${bookingForm.checkIn}T00:00:00`)
@@ -221,7 +252,12 @@ export function HotelDetailClient({ hotel }: Props) {
       fetchDemoBookings(session.token),
     ])
     setWallet(walletData)
+    setWalletStatus('ready')
     setBookings(bookingData)
+  }
+
+  const handleCheckAvailability = () => {
+    document.getElementById('quartos-disponiveis')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const handleDemoBooking = async () => {
@@ -418,7 +454,7 @@ export function HotelDetailClient({ hotel }: Props) {
             </div>
 
             {/* Amenities */}
-            <div className="mb-8">
+            <div id="quartos-disponiveis" className="mb-8 scroll-mt-24">
               <h2 className="mb-4 text-lg font-semibold text-foreground">Comodidades</h2>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                 {hotel.amenities.map((amenity) => (
@@ -503,7 +539,7 @@ export function HotelDetailClient({ hotel }: Props) {
                             </p>
                           </div>
                           <Button asChild>
-                            <Link href={`/hotel/${hotel.slug}/quarto/${encodeURIComponent(room.id)}`}>
+                            <Link href={`/hotel/${hotel.slug}/quarto/${encodeURIComponent(room.id)}${bookingQuery}`}>
                               Reservar
                             </Link>
                           </Button>
@@ -633,9 +669,15 @@ export function HotelDetailClient({ hotel }: Props) {
                 </div>
                 {sessionUser ? (
                   <>
-                    <p className="mt-1 text-xl font-bold text-foreground">
-                      R$ {walletBalance.toLocaleString('pt-BR')}
-                    </p>
+                    {walletStatus === 'loading' ? (
+                      <p className="mt-1 text-sm text-muted-foreground">Carregando saldo...</p>
+                    ) : walletStatus === 'error' ? (
+                      <p className="mt-1 text-sm text-destructive">Nao foi possivel carregar o saldo.</p>
+                    ) : (
+                      <p className="mt-1 text-xl font-bold text-foreground">
+                        R$ {walletBalance.toLocaleString('pt-BR')}
+                      </p>
+                    )}
                     <p className="mt-1 text-xs text-muted-foreground">
                       Conta: {sessionUser.email}
                     </p>
@@ -672,26 +714,37 @@ export function HotelDetailClient({ hotel }: Props) {
                   <label className="mb-1 block text-xs font-medium text-muted-foreground">
                     Check-in
                   </label>
-                  <input
-                    type="date"
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    min={new Date().toISOString().split('T')[0]}
+                  <DatePickerField
+                    value={bookingForm.checkIn}
+                    onChange={(value) => setBookingForm((prev) => ({
+                      ...prev,
+                      checkIn: value,
+                      checkOut: prev.checkOut && prev.checkOut <= value ? '' : prev.checkOut,
+                    }))}
+                    minDate={today}
+                    className="h-10"
                   />
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-muted-foreground">
                     Check-out
                   </label>
-                  <input
-                    type="date"
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  <DatePickerField
+                    value={bookingForm.checkOut}
+                    onChange={(value) => setBookingForm((prev) => ({ ...prev, checkOut: value }))}
+                    minDate={bookingForm.checkIn || today}
+                    className="h-10"
                   />
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-muted-foreground">
                     Hóspedes
                   </label>
-                  <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                  <select
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={bookingForm.guests}
+                    onChange={(event) => setBookingForm((prev) => ({ ...prev, guests: event.target.value }))}
+                  >
                     {[1, 2, 3, 4, 5, 6].map((num) => (
                       <option key={num} value={num}>
                         {num} {num === 1 ? 'hóspede' : 'hóspedes'}
@@ -701,7 +754,7 @@ export function HotelDetailClient({ hotel }: Props) {
                 </div>
               </div>
 
-              <Button className="mb-4 w-full" size="lg">
+              <Button className="mb-4 w-full" size="lg" onClick={handleCheckAvailability}>
                 Verificar Disponibilidade
               </Button>
 
@@ -830,20 +883,20 @@ export function HotelDetailClient({ hotel }: Props) {
 
               <div>
                 <label className="mb-1 block text-xs font-medium">Check-in</label>
-                <input
-                  type="date"
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                <DatePickerField
                   value={bookingForm.checkIn}
-                  onChange={(event) => setBookingForm((prev) => ({ ...prev, checkIn: event.target.value }))}
+                  onChange={(value) => setBookingForm((prev) => ({ ...prev, checkIn: value }))}
+                  minDate={new Date().toISOString().split('T')[0]}
+                  className="h-10"
                 />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium">Check-out</label>
-                <input
-                  type="date"
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                <DatePickerField
                   value={bookingForm.checkOut}
-                  onChange={(event) => setBookingForm((prev) => ({ ...prev, checkOut: event.target.value }))}
+                  onChange={(value) => setBookingForm((prev) => ({ ...prev, checkOut: value }))}
+                  minDate={bookingForm.checkIn || new Date().toISOString().split('T')[0]}
+                  className="h-10"
                 />
               </div>
               <div>
