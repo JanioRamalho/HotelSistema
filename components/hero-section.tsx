@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Search, MapPin, Calendar, Users, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DatePickerField } from '@/components/ui/date-picker-field'
 import { popularCities } from '@/features/hotels/hotel-types'
 
 export function HeroSection() {
@@ -103,32 +104,24 @@ export function HeroSection() {
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 Check-in
               </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="date"
-                  value={checkIn}
-                  onChange={(e) => setCheckIn(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="h-12 pl-10"
-                />
-              </div>
+              <DatePickerField
+                value={checkIn}
+                onChange={setCheckIn}
+                minDate={new Date().toISOString().split('T')[0]}
+                className="h-12"
+              />
             </div>
 
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 Check-out
               </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="date"
-                  value={checkOut}
-                  onChange={(e) => setCheckOut(e.target.value)}
-                  min={checkIn || new Date().toISOString().split('T')[0]}
-                  className="h-12 pl-10"
-                />
-              </div>
+              <DatePickerField
+                value={checkOut}
+                onChange={setCheckOut}
+                minDate={checkIn || new Date().toISOString().split('T')[0]}
+                className="h-12"
+              />
             </div>
 
             <div className="flex gap-2 md:col-span-4 lg:col-span-1">
