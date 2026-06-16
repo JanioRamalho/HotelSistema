@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { DatePickerField } from '@/components/ui/date-picker-field'
 import { confirmPasswordRegister, registerWithPassword } from '@/features/hotels/hotel-experience-api'
 
 interface FormData {
@@ -430,13 +431,11 @@ export default function CadastroPage() {
                       Data de Nascimento <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
-                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
+                      <DatePickerField
                         id="dataNascimento"
-                        type="date"
-                        className={`pl-10 ${errors.dataNascimento ? 'border-destructive' : ''}`}
                         value={formData.dataNascimento}
-                        onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
+                        onChange={(value) => setFormData({ ...formData, dataNascimento: value })}
+                        className={`pl-10 ${errors.dataNascimento ? 'border-destructive' : ''}`}
                       />
                     </div>
                     {errors.dataNascimento && (
