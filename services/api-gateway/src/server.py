@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib import request as urlrequest
 from urllib.error import HTTPError, URLError
@@ -59,12 +59,21 @@ REQUIRED_UPSTREAMS = {
 upstream_indexes = defaultdict(int)
 rate_limit_buckets = {}
 metrics = {
-    "startedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+    "startedAt": None,
     "totalRequests": 0,
     "rateLimitedRequests": 0,
     "requestsByRoute": {},
     "upstreams": {},
 }
+
+LOCAL_TIMEZONE = timezone(timedelta(hours=-3), "America/Sao_Paulo")
+
+
+def local_iso_now():
+    return datetime.now(LOCAL_TIMEZONE).isoformat()
+
+
+metrics["startedAt"] = local_iso_now()
 
 
 @app.after_request
@@ -76,7 +85,7 @@ def cors(response):
 
 
 def log_event(event):
-    print(json.dumps({"timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "service": "api-gateway", **event}))
+    print(json.dumps({"timestamp": local_iso_now(), "service": "api-gateway", **event}))
 
 
 def route_key(pathname):
