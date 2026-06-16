@@ -81,6 +81,11 @@ def wallet(conn, user_id):
     return conn.execute("SELECT usuario_id AS user_id, saldo_centavos AS balance_cents FROM carteiras WHERE usuario_id = ?", (user_id,)).fetchone()
 
 
+def ensure_wallet(conn, user_id):
+    conn.execute("INSERT OR IGNORE INTO carteiras (usuario_id, saldo_centavos) VALUES (?, 2000000)", (user_id,))
+    return wallet(conn, user_id)
+
+
 def find_room(conn, room_id):
     return conn.execute(
         "SELECT q.id, q.hotel_id, q.preco AS price, q.capacidade AS capacity, h.nome AS hotel_name FROM quartos q JOIN hoteis h ON h.id = q.hotel_id WHERE q.id = ?",
@@ -164,7 +169,8 @@ def wallet_me():
     if not user_id:
         return json_response({"error": "login_required", "message": "Faca login para acessar sua carteira demo."}, 401)
     with connect() as conn:
-        row = wallet(conn, user_id)
+        row = ensure_wallet(conn, user_id)
+        conn.commit()
     if not row:
         return json_response({"error": "wallet_not_found", "message": "Carteira demo nao encontrada para esta conta."}, 404)
     return json_response({"data": dict(row)})
@@ -218,7 +224,7 @@ def create_booking():
             if status == 422:
                 return json_response({"error": "invalid_guest_data", "message": "Revise os dados do hospede antes de concluir a reserva.", "details": validation.get("errors", [])}, 422)
             return json_response(validation, status)
-        user_wallet = wallet(conn, user_id)
+        user_wallet = ensure_wallet(conn, user_id)
         if not user_wallet:
             return json_response({"error": "wallet_not_found"}, 404)
         total_cents = int(room["price"] * nights * 100)
