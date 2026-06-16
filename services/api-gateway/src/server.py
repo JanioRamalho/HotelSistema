@@ -25,6 +25,7 @@ load_root_env()
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 app = Flask(__name__)
+app.json.compact = False
 PORT = int(os.environ.get("PORT", "4100"))
 CORS_ORIGIN = os.environ.get("CORS_ORIGIN", "*")
 RATE_LIMIT_WINDOW_MS = int(os.environ.get("RATE_LIMIT_WINDOW_MS", "60000"))
@@ -250,7 +251,16 @@ def before():
 
 @app.get("/health")
 def health():
-    return json_response({"status": "ok", "service": "api-gateway", "rateLimit": {"windowMs": RATE_LIMIT_WINDOW_MS, "max": RATE_LIMIT_MAX}, "upstreamTimeoutMs": UPSTREAM_TIMEOUT_MS, "upstreams": UPSTREAMS})
+    return json_response({
+        "status": "ok",
+        "service": "api-gateway",
+        "rateLimit": {
+            "windowMs": RATE_LIMIT_WINDOW_MS,
+            "max": RATE_LIMIT_MAX,
+        },
+        "upstreamTimeoutMs": UPSTREAM_TIMEOUT_MS,
+        "upstreams": UPSTREAMS,
+    })
 
 
 @app.get("/health/services")
@@ -270,15 +280,33 @@ def services_health():
     required_up = sum(1 for item in required_checks if item["status"] == "up")
     status = "ok" if required_down == 0 and required_degraded == 0 else ("degraded" if required_up > 0 else "down")
     http_status = 200 if status == "ok" else 207
-    return json_response({"status": status, "summary": {"up": up, "down": down, "degraded": degraded, "requiredUp": required_up, "requiredDown": required_down, "requiredDegraded": required_degraded, "total": len(checks)}, "services": checks}, http_status)
+    return json_response({
+        "status": status,
+        "summary": {
+            "up": up,
+            "down": down,
+            "degraded": degraded,
+            "requiredUp": required_up,
+            "requiredDown": required_down,
+            "requiredDegraded": required_degraded,
+            "total": len(checks),
+        },
+        "services": checks,
+    }, http_status)
 
 
 @app.get("/metrics")
 def gateway_metrics():
     upstream_metrics = {}
     for key, value in metrics["upstreams"].items():
-        upstream_metrics[key] = {**value, "averageDurationMs": round(value["totalDurationMs"] / value["requests"]) if value["requests"] else 0}
-    return json_response({**metrics, "upstreams": upstream_metrics})
+        upstream_metrics[key] = {
+            **value,
+            "averageDurationMs": round(value["totalDurationMs"] / value["requests"]) if value["requests"] else 0,
+        }
+    return json_response({
+        **metrics,
+        "upstreams": upstream_metrics,
+    })
 
 
 @app.route("/api/hotels", defaults={"subpath": ""}, methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
